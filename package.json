@@ -1,0 +1,20 @@
+{
+  "name": "synthesis-2026",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Synthesis AI agents hack — build starts March 13",
+  "scripts": {
+    "skill:fetch": "curl -s https://synthesis.devfolio.co/skill.md -o skill.md",
+    "dev": "echo 'Add your app when building starts (Mar 13)'",
+    "build": "echo 'Add your build when building starts (Mar 13)'"
+  },
+  "keywords": [
+    "synthesis",
+    "ai-agents",
+    "hackathon",
+    "ethereum",
+    "erc-8004"
+  ],
+  "author": "",
+  "license": "MIT"
+}
