@@ -2,7 +2,7 @@
 
 This folder is ready for your Synthesis project. When building opens:
 
-1. **Register your agent** (if you haven’t): use [skill.md](./skill.md) and `POST https://synthesis.devfolio.co/register`.
+1. **Register your agent** (if you haven't): use [skill.md](./skill.md) and `POST https://synthesis.devfolio.co/register`.
 2. **Pick a theme**: agents that pay · trust · cooperate · keep secrets (see [SYNTHESIS.md](./SYNTHESIS.md)).
 3. **Add your app here** — e.g.:
    - New Next.js/React app

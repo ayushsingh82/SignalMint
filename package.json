@@ -1,20 +1,39 @@
 {
-  "name": "synthesis-2026",
+  "name": "signal-mint",
   "version": "0.0.1",
   "private": true,
-  "description": "Synthesis AI agents hack — build starts March 13",
+  "description": "Synthesis 2026 — SignalMint: autonomous market-driven art agent (Protocol Labs + SuperRare)",
   "scripts": {
-    "skill:fetch": "curl -s https://synthesis.devfolio.co/skill.md -o skill.md",
-    "dev": "echo 'Add your app when building starts (Mar 13)'",
-    "build": "echo 'Add your build when building starts (Mar 13)'"
+    "skill:fetch": "curl -s https://synthesis.devfolio.co/skill.md -o md/skill.md",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
   },
   "keywords": [
     "synthesis",
     "ai-agents",
     "hackathon",
-    "ethereum",
-    "erc-8004"
+    "signal-mint",
+    "rare-protocol",
+    "protocol-labs",
+    "superrare"
   ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "next": "16.1.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
 }

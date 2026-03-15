@@ -1,0 +1,195 @@
+@import "tailwindcss";
+
+/* Bauhaus palette */
+:root {
+  --bauhaus-background: #F5F0E8;
+  --bauhaus-black: #121212;
+  --bauhaus-red: #E63946;
+  --bauhaus-blue: #457B9D;
+  --bauhaus-yellow: #F4D35E;
+  --bauhaus-green: #208040;
+  --bauhaus-border: #121212;
+  --bauhaus-foreground: #121212;
+}
+
+/* Brand: header/chrome #053AC6 + white text; accent on blue = #ADFF01; buttons #FFFFFF + #002583 text */
+:root {
+  --brand-primaryBg: #053AC6;
+  --brand-primaryText: #FFFFFF;
+  --brand-accentOnBlue: #ADFF01;
+  --brand-buttonBg: #FFFFFF;
+  --brand-buttonText: #002583;
+  --brand-pageBg: #FFFFFF;
+  --brand-textPrimary: #002583;
+  --brand-textAccent: #043BCB;
+  --brand-textDark: #000000;
+}
+
+/* App tokens: blue bg, white text, green accent */
+:root {
+  --background: var(--brand-primaryBg);
+  --foreground: var(--brand-primaryText);
+  --accent: var(--brand-accentOnBlue);
+  --card-bg: rgba(255, 255, 255, 0.98);
+  --card-border: rgba(255, 255, 255, 0.3);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-brand-primaryBg: var(--brand-primaryBg);
+  --color-brand-primaryText: var(--brand-primaryText);
+  --color-brand-accentOnBlue: var(--brand-accentOnBlue);
+  --color-brand-buttonBg: var(--brand-buttonBg);
+  --color-brand-buttonText: var(--brand-buttonText);
+  --color-bauhaus-yellow: var(--bauhaus-yellow);
+  --color-bauhaus-black: var(--bauhaus-black);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-serif);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Typography */
+.font-heading {
+  font-family: var(--font-serif), Georgia, serif;
+}
+
+.text-accent {
+  color: var(--accent);
+}
+.text-accent-on-blue {
+  color: var(--brand-accentOnBlue);
+}
+.border-accent {
+  border-color: var(--accent);
+}
+.bg-accent {
+  background-color: var(--accent);
+}
+.bg-brand-chrome {
+  background-color: var(--brand-primaryBg);
+}
+.text-brand-on-chrome {
+  color: var(--brand-primaryText);
+}
+
+/* Buttons: primary = white bg, #002583 text, 2px border, uppercase, bold */
+.btn-primary {
+  background-color: var(--brand-buttonBg);
+  color: var(--brand-buttonText);
+  border: 2px solid var(--brand-buttonText);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.btn-primary:hover {
+  background-color: #f3f4f6;
+  border-color: var(--brand-textAccent);
+  color: var(--brand-textAccent);
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Primary button on blue bg: white bg, blue text, hover green accent */
+.btn-primary-on-blue {
+  background-color: var(--brand-buttonBg);
+  color: var(--brand-buttonText);
+  border: 2px solid var(--brand-primaryText);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.btn-primary-on-blue:hover {
+  background-color: var(--brand-accentOnBlue);
+  border-color: var(--brand-accentOnBlue);
+  color: var(--brand-primaryBg);
+  transform: translateY(-1px);
+}
+.btn-primary-on-blue:active {
+  transform: translateY(0);
+}
+
+/* Outline: transparent, #002583 border & text */
+.btn-outline {
+  background-color: transparent;
+  color: var(--brand-textPrimary);
+  border: 2px solid var(--brand-textPrimary);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.btn-outline:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-color: var(--brand-textAccent);
+  color: var(--brand-textAccent);
+}
+
+/* Yellow (Bauhaus): yellow bg, black border, shadow */
+.btn-yellow {
+  background-color: var(--bauhaus-yellow);
+  color: var(--bauhaus-black);
+  border: 3px solid var(--bauhaus-black);
+  box-shadow: 3px 3px 0 0 var(--bauhaus-black);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.btn-yellow:hover {
+  transform: translateY(-1px);
+  box-shadow: 4px 4px 0 0 var(--bauhaus-black);
+}
+.btn-yellow:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+/* Full-width layout: use complete page with side padding */
+.section-container {
+  width: 100%;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+@media (min-width: 768px) {
+  .section-container {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+}
+@media (min-width: 1024px) {
+  .section-container {
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+}
+@media (min-width: 1280px) {
+  .section-container {
+    max-width: 96rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 5rem;
+    padding-right: 5rem;
+  }
+}
+
+.card-subtle {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 0.5rem;
+  padding: 1.5rem 1.75rem;
+}
