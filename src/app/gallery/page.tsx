@@ -29,26 +29,26 @@ export default async function GalleryPage() {
 
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {mints.map((item) => (
-            <div key={item.id} className="card-subtle">
+            <div key={item.id} className="border-2 border-[var(--brand-primaryText)]/20 bg-white p-0 text-[var(--brand-textPrimary)]">
               {item.imageUri ? (
                 <img
                   src={item.imageUri}
                   alt={item.name}
-                  className="aspect-square w-full rounded object-cover"
+                  className="aspect-square w-full object-cover"
                 />
               ) : (
-                <div className="aspect-square w-full rounded bg-[var(--brand-primaryBg)]/10 flex items-center justify-center text-[var(--brand-textPrimary)]/50 text-sm">
+                <div className="aspect-square w-full bg-[var(--brand-primaryBg)]/10 flex items-center justify-center text-[var(--brand-textPrimary)]/50 text-sm">
                   Art
                 </div>
               )}
-              <h3 className="mt-3 font-semibold text-[var(--brand-textPrimary)]">{item.name}</h3>
-              <p className="mt-1 text-xs text-[var(--brand-textPrimary)]/70">Signal: {item.signal}</p>
-              <p className="mt-1 text-xs font-medium text-[var(--brand-textAccent)]">{statusLabel(item.status)}</p>
-              {item.mintedAt && (
-                <p className="mt-1 text-xs text-[var(--brand-textPrimary)]/50">
-                  {new Date(item.mintedAt).toLocaleDateString()}
+              <div className="p-4">
+                <p className="text-xs text-[var(--brand-textPrimary)]/60">
+                  {item.mintedAt ? new Date(item.mintedAt).toLocaleDateString(undefined, { dateStyle: "medium" }) : "—"}
                 </p>
-              )}
+                <h3 className="mt-1 font-semibold text-[var(--brand-textPrimary)]">{item.name}</h3>
+                <p className="mt-1 text-xs text-[var(--brand-textPrimary)]/70">From market signal: {item.signal}</p>
+                <p className="mt-2 text-xs font-medium text-[var(--brand-textAccent)]">{statusLabel(item.status)}</p>
+              </div>
             </div>
           ))}
         </div>

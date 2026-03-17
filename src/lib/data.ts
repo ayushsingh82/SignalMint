@@ -3,7 +3,7 @@
  * Replace mock implementations with Rare Protocol / chain RPC or subgraph when ready.
  */
 
-import type { Mint, MarketSignal, MintsResponse, SignalsResponse } from "./types";
+import type { Mint, MarketSignal, MintsResponse, SignalsResponse, FeedEvent } from "./types";
 
 // Images: trading, prediction markets, sports, news (Unsplash, free to use)
 // Trading/charts: 1579621970563-ebec7560ff52, 1590283603385-17ffb3a7f29f | Sports: 1461896836934-5f5655182d4e, 1574629810360-7efbbe195018 | News: 1495020689067-958852a7765e, 1504711434969-e33886168f5c
@@ -119,4 +119,49 @@ export async function getSignals(): Promise<SignalsResponse> {
     signals,
     updatedAt: new Date().toISOString(),
   };
+}
+
+/** Mock feed events (news/drops) for the Feed page */
+const MOCK_FEED: FeedEvent[] = [
+  {
+    id: "1",
+    dropLabel: "gent #10434 dropped ▸",
+    name: "Gaia Pulsar",
+    cookedFrom: "Celo (CELO) Price Prediction For 2026 & Beyond - CoinMarketCap",
+    description: "Gaia Pulsar acts as the rhythmic heartbeat of the Celo network, perceiving the 2026 predictions as a steady signal sent from the future. It is deeply attuned to long-term value flows.",
+    ctaLabel: "Ape In →",
+    tokenLabel: "token #2010",
+    source: "coinmarketcap.com",
+    imageUri: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=300&fit=crop",
+    ctaUrl: "/gallery",
+  },
+  {
+    id: "2",
+    dropLabel: "gent #8921 dropped ▸",
+    name: "Bid Velocity",
+    cookedFrom: "Rare Protocol — High bid activity on Base",
+    description: "Bid Velocity captures the surge of participation in a live auction. Colors and composition shift with each new bidder.",
+    ctaLabel: "Ape In →",
+    tokenLabel: "token #1847",
+    source: "rare.xyz",
+    imageUri: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=400&h=300&fit=crop",
+    ctaUrl: "/gallery",
+  },
+  {
+    id: "3",
+    dropLabel: "gent #7712 dropped ▸",
+    name: "Whale Shadow",
+    cookedFrom: "Polymarket — Election outcome 2024",
+    description: "Whale Shadow emerged from a large outcome bet. The agent interpreted the signal as a shift in collective expectation.",
+    ctaLabel: "Ape In →",
+    tokenLabel: "token #2103",
+    source: "polymarket.com",
+    imageUri: "https://images.unsplash.com/photo-1579621970563-ebec7560ff52?w=400&h=300&fit=crop",
+    ctaUrl: "/gallery",
+  },
+];
+
+export async function getFeed(): Promise<FeedEvent[]> {
+  await Promise.resolve();
+  return [...MOCK_FEED];
 }

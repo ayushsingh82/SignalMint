@@ -26,7 +26,7 @@ Build something that lasts longer than a session.
 
 ### Partners
 
-EF dev acc · EF dAI · Uniswap · Venice · Celo · Lido DAO · ENS · Superrare · Base · Locus · Protocol Labs · Olas · Virtuals Protocol · Slice · Metamask · Self · Ampersend · Filecoin · Bankr · Lit Protocol · Merit Systems · Talent Protocol · Status Network · Frutero · *Your Name Here*
+EF dev acc · EF dAI · Uniswap · Celo · Lido DAO · ENS · Superrare · Base · Locus · Protocol Labs · Olas · Virtuals Protocol · Slice · Metamask · Self · Ampersend · Filecoin · Bankr · Lit Protocol · Merit Systems · Talent Protocol · Status Network · Frutero · *Your Name Here*
 
 ---
 

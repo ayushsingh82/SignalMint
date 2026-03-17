@@ -66,3 +66,26 @@ export interface CreateRequestBody {
   description: string;
   triggerCondition?: string;
 }
+
+/** Feed event: one news/drop item for the Feed page */
+export interface FeedEvent {
+  id: string;
+  /** e.g. "gent #10434 dropped ▸" */
+  dropLabel: string;
+  /** Artwork / drop name */
+  name: string;
+  /** Cooked from source title */
+  cookedFrom: string;
+  /** Short description */
+  description: string;
+  /** CTA e.g. "Ape In →" */
+  ctaLabel: string;
+  /** e.g. "token #2010" */
+  tokenLabel: string;
+  /** Source domain or URL label */
+  source: string;
+  /** Small image for the event */
+  imageUri?: string;
+  /** Optional link for CTA */
+  ctaUrl?: string;
+}

@@ -16,7 +16,7 @@ export default async function MintPage() {
           How minting works
         </h1>
         <p className="mt-4 text-lg text-[var(--brand-primaryText)]/90 max-w-4xl">
-          The agent reads <span className="text-[var(--brand-accentOnBlue)]">market signals</span>, generates art, then mints on Rare Protocol. No human in the loop.
+          The agent reads <span className="text-[var(--brand-accentOnBlue)]">market signals</span> — Rare auctions, prediction-market events (e.g. Polymarket-style), sports, news — and mints on Rare Protocol. Private strategy; public art.
         </p>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
@@ -71,6 +71,7 @@ export default async function MintPage() {
               Every mint appears in the <Link href="/gallery" className="text-[var(--brand-textAccent)] font-medium hover:underline">Gallery</Link>. You can also view them on-chain via Rare Protocol and the contract address.
             </p>
           </div>
+
         </div>
       </section>
     </div>
