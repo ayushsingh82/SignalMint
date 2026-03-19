@@ -29,25 +29,28 @@ export default async function GalleryPage() {
 
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {mints.map((item) => (
-            <div key={item.id} className="border-2 border-[var(--brand-primaryText)]/20 bg-white p-0 text-[var(--brand-textPrimary)]">
+            <div key={item.id} className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md transition-all hover:border-[var(--brand-accentOnBlue)]/50 hover:shadow-[0_0_30px_rgba(173,255,1,0.15)] group">
               {item.imageUri ? (
                 <img
                   src={item.imageUri}
                   alt={item.name}
-                  className="aspect-square w-full object-cover"
+                  className="aspect-square w-full object-cover opacity-80 mix-blend-screen transition-all duration-500 group-hover:scale-105 group-hover:opacity-100 group-hover:mix-blend-normal"
                 />
               ) : (
-                <div className="aspect-square w-full bg-[var(--brand-primaryBg)]/10 flex items-center justify-center text-[var(--brand-textPrimary)]/50 text-sm">
+                <div className="aspect-square w-full bg-white/5 flex items-center justify-center text-zinc-500 text-sm">
                   Art
                 </div>
               )}
-              <div className="p-4">
-                <p className="text-xs text-[var(--brand-textPrimary)]/60">
+              <div className="p-5">
+                <p className="text-xs text-zinc-400">
                   {item.mintedAt ? new Date(item.mintedAt).toLocaleDateString(undefined, { dateStyle: "medium" }) : "—"}
                 </p>
-                <h3 className="mt-1 font-semibold text-[var(--brand-textPrimary)]">{item.name}</h3>
-                <p className="mt-1 text-xs text-[var(--brand-textPrimary)]/70">From market signal: {item.signal}</p>
-                <p className="mt-2 text-xs font-medium text-[var(--brand-textAccent)]">{statusLabel(item.status)}</p>
+                <h3 className="mt-2 text-lg font-bold text-white">{item.name}</h3>
+                <p className="mt-1 text-xs text-zinc-300">From market signal: <span className="text-[var(--brand-accentOnBlue)]">{item.signal}</span></p>
+                <div className="mt-4 flex items-center justify-between">
+                  <p className="text-xs font-bold uppercase tracking-wider text-[var(--brand-accentOnBlue)]">{statusLabel(item.status)}</p>
+                  <span className="flex h-2 w-2 rounded-full bg-[var(--brand-accentOnBlue)] shadow-[0_0_8px_rgba(173,255,1,1)]"></span>
+                </div>
               </div>
             </div>
           ))}

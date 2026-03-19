@@ -43,6 +43,17 @@ async function startAutonomousAgent(): Promise<void> {
     await executorAgent.start();
     await verifierAgent.start();
 
+    console.log('🔗 Wiring advanced protocol integrations...\n');
+    const { zyfaiIntegration } = await import('../protocols/zyfai');
+    const { openServIntegration } = await import('../protocols/openserv');
+    const { erc8004Integration } = await import('../protocols/erc8004');
+    const { locusIntegration } = await import('../protocols/locus');
+
+    await zyfaiIntegration.getOrCreateWallet();
+    await openServIntegration.createSystem('SignalMint System', ['Scout', 'Analyst', 'Executor', 'Verifier']);
+    await erc8004Integration.registerAgent('ipfs://QmAgentMetadata');
+    await locusIntegration.setSpendLimit('0.5 ETH');
+
     isRunning = true;
 
     // Scout runs in continuous loop

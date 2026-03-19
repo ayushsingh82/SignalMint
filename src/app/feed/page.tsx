@@ -23,40 +23,42 @@ export default async function FeedPage() {
           {events.map((e) => (
             <div
               key={e.id}
-              className="border-2 border-[var(--brand-primaryText)]/20 bg-white p-0 text-[var(--brand-textPrimary)]"
+              className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 p-0 text-zinc-300 backdrop-blur-md transition-all hover:border-[var(--brand-accentOnBlue)]/30 hover:shadow-[0_0_20px_rgba(173,255,1,0.1)] group"
             >
               <div className="flex flex-col md:flex-row">
                 {e.imageUri && (
-                  <div className="md:w-48 flex-shrink-0">
+                  <div className="md:w-56 flex-shrink-0 overflow-hidden border-r border-white/5">
                     <img
                       src={e.imageUri}
                       alt=""
-                      className="h-32 w-full object-cover md:h-auto md:min-h-[140px]"
+                      className="h-40 w-full object-cover opacity-80 mix-blend-screen transition-all duration-700 group-hover:scale-110 group-hover:opacity-100 group-hover:mix-blend-normal md:h-full md:min-h-[160px]"
                     />
                   </div>
                 )}
-                <div className="flex-1 p-5">
-                  <p className="text-xs font-medium text-[var(--brand-textAccent)]">{e.dropLabel}</p>
-                  <h2 className="mt-1 text-xl font-bold text-[var(--brand-textPrimary)]">{e.name}</h2>
-                  <p className="mt-2 text-sm text-[var(--brand-textPrimary)]/80">
-                    Cooked from: &quot;{e.cookedFrom}&quot;
+                <div className="flex-1 p-6">
+                  <p className="text-xs font-bold uppercase tracking-widest text-[var(--brand-accentOnBlue)] drop-shadow-[0_0_8px_rgba(173,255,1,0.5)]">{e.dropLabel}</p>
+                  <h2 className="mt-2 text-2xl font-bold text-white">{e.name}</h2>
+                  <p className="mt-1 text-sm text-zinc-400">
+                    Cooked from: <span className="text-zinc-200">&quot;{e.cookedFrom}&quot;</span>
                   </p>
-                  <p className="mt-2 text-sm leading-relaxed text-[var(--brand-textPrimary)]/90 line-clamp-2">
+                  <p className="mt-3 text-sm leading-relaxed text-zinc-300 line-clamp-2">
                     {e.description}
                   </p>
-                  <div className="mt-4 flex flex-wrap items-center gap-4 text-sm">
+                  <div className="mt-5 flex flex-wrap items-center gap-5 text-sm">
                     {e.ctaUrl ? (
                       <Link
                         href={e.ctaUrl}
-                        className="font-semibold text-[var(--brand-textAccent)] hover:underline"
+                        className="rounded-full border border-[var(--brand-accentOnBlue)]/50 bg-[var(--brand-accentOnBlue)]/10 px-4 py-1.5 font-bold text-[var(--brand-accentOnBlue)] transition-all hover:bg-[var(--brand-accentOnBlue)] hover:text-black hover:shadow-[0_0_15px_rgba(173,255,1,0.4)]"
                       >
                         {e.ctaLabel}
                       </Link>
                     ) : (
-                      <span className="font-semibold text-[var(--brand-textAccent)]">{e.ctaLabel}</span>
+                      <span className="rounded-full bg-white/10 px-4 py-1.5 font-bold text-white">{e.ctaLabel}</span>
                     )}
-                    <span className="text-[var(--brand-textPrimary)]/70">{e.tokenLabel}</span>
-                    <span className="text-[var(--brand-textPrimary)]/60">Source: {e.source}</span>
+                    <span className="rounded-full bg-zinc-800 px-3 py-1 text-xs font-semibold text-zinc-300">{e.tokenLabel}</span>
+                    <span className="flex items-center gap-1.5 text-xs font-medium text-zinc-500">
+                      <span className="h-1.5 w-1.5 rounded-full bg-zinc-400"></span> Source: {e.source}
+                    </span>
                   </div>
                 </div>
               </div>
