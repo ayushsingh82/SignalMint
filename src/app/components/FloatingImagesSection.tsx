@@ -2,15 +2,16 @@
 
 import type React from "react";
 import { useState, useRef, useCallback } from "react";
+import Link from "next/link";
 
 // 2 above, 1 left, 1 right, 2 below the heading
 const initialImages = [
-  { src: "https://picsum.photos/id/11/600/450", alt: "Art", top: 6, left: 12, rotate: -8, width: 200, height: 150 },
-  { src: "https://picsum.photos/id/12/600/450", alt: "Art", top: 8, left: 72, rotate: 6, width: 180, height: 140 },
-  { src: "https://picsum.photos/id/13/600/450", alt: "Art", top: 40, left: 2, rotate: -5, width: 160, height: 200 },
-  { src: "https://picsum.photos/id/14/600/450", alt: "Art", top: 42, left: 82, rotate: 5, width: 170, height: 190 },
-  { src: "https://picsum.photos/id/15/600/450", alt: "Art", top: 70, left: 18, rotate: 8, width: 200, height: 150 },
-  { src: "https://picsum.photos/id/16/600/450", alt: "Art", top: 72, left: 68, rotate: -6, width: 190, height: 160 },
+  { src: "https://picsum.photos/id/11/600/450", alt: "Art", top: 6, left: 12, rotate: -8, width: 220, height: 165 },
+  { src: "https://picsum.photos/id/12/600/450", alt: "Art", top: 8, left: 72, rotate: 6, width: 200, height: 155 },
+  { src: "https://picsum.photos/id/13/600/450", alt: "Art", top: 40, left: 2, rotate: -5, width: 180, height: 220 },
+  { src: "https://picsum.photos/id/14/600/450", alt: "Art", top: 42, left: 82, rotate: 5, width: 190, height: 210 },
+  { src: "https://picsum.photos/id/15/600/450", alt: "Art", top: 70, left: 18, rotate: 8, width: 220, height: 165 },
+  { src: "https://picsum.photos/id/16/600/450", alt: "Art", top: 72, left: 68, rotate: -6, width: 210, height: 175 },
 ];
 
 export function FloatingImagesSection() {
@@ -52,7 +53,7 @@ export function FloatingImagesSection() {
         animationFrameRef.current = requestAnimationFrame(updatePosition);
       }
     },
-    [draggingIndex, updatePosition],
+    [draggingIndex, updatePosition]
   );
 
   const handleMouseUp = useCallback(() => {
@@ -66,26 +67,30 @@ export function FloatingImagesSection() {
   return (
     <section
       ref={containerRef}
-      className="relative min-h-[calc(100vh-4rem)] overflow-hidden bg-[var(--brand-primaryBg)]"
+      className="relative min-h-[calc(100vh-4rem)] overflow-hidden bg-[#09090B]"
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
+      {/* Premium Dark Grid Background */}
       <div
-        className="absolute inset-0 opacity-20"
+        className="absolute inset-0 opacity-[0.03]"
         style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
-                           linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)`,
-          backgroundSize: "40px 40px",
+          backgroundImage: `linear-gradient(rgba(255,255,255,1) 1px, transparent 1px),
+                           linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)`,
+          backgroundSize: "60px 60px",
         }}
       />
+
+      {/* Ambient background glows */}
+      <div className="pointer-events-none absolute top-1/4 left-1/4 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--brand-accentOnBlue)]/[0.03] blur-[120px]" />
+      <div className="pointer-events-none absolute bottom-1/4 right-1/4 h-[600px] w-[600px] translate-x-1/3 translate-y-1/3 rounded-full bg-blue-500/[0.04] blur-[150px]" />
 
       {images.map((image, index) => (
         <div
           key={index}
-          className={`draggable-image absolute hidden select-none md:block ${
-            draggingIndex === index ? "z-50 cursor-grabbing" : "cursor-grab hover:z-50"
-          }`}
+          className={`draggable-image absolute hidden select-none md:block ${draggingIndex === index ? "z-50 cursor-grabbing" : "cursor-grab hover:z-50"
+            }`}
           style={{
             top: `${image.top}%`,
             left: `${image.left}%`,
@@ -95,37 +100,56 @@ export function FloatingImagesSection() {
             transition:
               draggingIndex === index
                 ? "transform 0.1s ease-out, box-shadow 0.2s ease-out"
-                : "top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease-out",
+                : "top 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease-out",
             boxShadow:
               draggingIndex === index
-                ? "0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 0, 0, 0.3)"
-                : "0 10px 40px -10px rgba(0, 0, 0, 0.4)",
+                ? "0 0 40px rgba(173, 255, 1, 0.15), 0 25px 50px -12px rgba(0, 0, 0, 1)"
+                : "0 10px 40px -10px rgba(0, 0, 0, 0.8)",
             willChange: draggingIndex === index ? "top, left, transform" : "auto",
           }}
           onMouseDown={(e) => handleMouseDown(e, index)}
         >
-          <div className="relative h-full w-full overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+          <div className="relative h-full w-full overflow-hidden rounded-2xl border border-white/10 bg-black/50 backdrop-blur-sm transition-all duration-500 hover:border-[var(--brand-accentOnBlue)]/50 hover:shadow-[0_0_30px_rgba(173,255,1,0.2)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={image.src}
               alt={image.alt}
-              className="pointer-events-none h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+              className="pointer-events-none h-full w-full object-cover mix-blend-screen opacity-70 transition-all duration-700 hover:scale-110 hover:opacity-100 hover:mix-blend-normal"
               draggable={false}
             />
+            {/* Subtle inner ring gloss */}
+            <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10" />
           </div>
         </div>
       ))}
 
       <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-        <div className="text-center px-4">
-          <h1 className="font-heading text-4xl font-bold tracking-tight text-[var(--brand-primaryText)] sm:text-5xl md:text-6xl">
-            <span className="block">Art shaped</span>
-            <span className="block">by</span>
-            <span className="block text-[var(--brand-accentOnBlue)]">market signals</span>
+        <div className="text-center px-4 relative">
+          {/* Text glow effect behind main text */}
+          <div className="absolute left-1/2 top-1/2 -z-10 h-[200px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--brand-accentOnBlue)] blur-[100px] opacity-20" />
+
+          <h1 className="font-heading text-5xl font-extrabold tracking-tight sm:text-7xl md:text-[5.5rem] leading-[1.1]">
+            <span className="block bg-gradient-to-br from-white via-zinc-200 to-zinc-600 bg-clip-text text-transparent drop-shadow-sm">Art shaped</span>
+            <span className="block bg-gradient-to-br from-white via-zinc-200 to-zinc-600 bg-clip-text text-transparent drop-shadow-sm pb-2">by</span>
+            <span className="block text-[var(--brand-accentOnBlue)] drop-shadow-[0_0_20px_rgba(173,255,1,0.4)]">market signals</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-[var(--brand-primaryText)]/90 md:text-lg">
-            An autonomous agent mints NFTs from live market data — Rare Protocol auctions, prediction markets, and events. Strategy stays private; mints and gallery are public. Built with Protocol Labs and SuperRare.
+          <p className="mx-auto mt-8 max-w-2xl text-base leading-relaxed text-zinc-400 md:text-xl font-medium">
+            An autonomous agent mints NFTs from live market data — Rare Protocol auctions, prediction markets, and events. Strategy stays private; mints and gallery are public.
           </p>
+          <div className="mt-10 flex flex-wrap justify-center gap-4 pointer-events-auto">
+            <Link
+              href="/gallery"
+              className="rounded-full bg-white px-8 py-3.5 text-sm font-bold uppercase tracking-widest text-black transition-all hover:scale-105 hover:bg-[var(--brand-accentOnBlue)] hover:shadow-[0_0_20px_rgba(173,255,1,0.4)] active:scale-95 text-center flex items-center justify-center"
+            >
+              View Gallery
+            </Link>
+            <Link
+              href="/feed"
+              className="rounded-full border border-white/20 bg-black/40 px-8 py-3.5 text-sm font-bold uppercase tracking-widest text-white backdrop-blur-md transition-all hover:border-[var(--brand-accentOnBlue)] hover:text-[var(--brand-accentOnBlue)] hover:bg-white/5 active:scale-95 text-center flex items-center justify-center"
+            >
+              Live Feed
+            </Link>
+          </div>
         </div>
       </div>
     </section>
