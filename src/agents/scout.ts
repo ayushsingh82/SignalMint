@@ -1,6 +1,7 @@
 import { Signal } from '../shared/types';
 import { messageBus } from '../shared/message';
 import { uniswapIntegration } from '../protocols/uniswap';
+import { marketDataIntegration } from '../protocols/marketData';
 import { config } from '../shared/config';
 import { logger } from '../utils/logger';
 import { CircularBuffer } from '../utils/helpers';
@@ -25,14 +26,25 @@ export class ScoutAgent {
    */
   async run(): Promise<void> {
     try {
-      // Fetch current price from Uniswap
-      const price = await uniswapIntegration.getPrice('WETH', 'USDC');
+      // Fetch primary and third-party market intelligence in parallel.
+      const [uniswapPrice, cmcSnapshot, newsSentiment, fearGreed] = await Promise.all([
+        uniswapIntegration.getPrice('WETH', 'USDC'),
+        marketDataIntegration.getCmcSnapshot(),
+        marketDataIntegration.getNewsSentiment(),
+        marketDataIntegration.getFearGreed(),
+      ]);
+
+      const price = cmcSnapshot?.ethPriceUsd ?? uniswapPrice;
       console.log(`\n📊 [ScoutAgent] Current ETH price: $${price}`);
       
       this.priceHistory.add(price);
 
       // Attempt to detect signal
-      const signal = this.detectSignal(price);
+      const signal = this.detectSignal(price, {
+        cmcSnapshot,
+        newsSentiment,
+        fearGreed,
+      });
 
       if (signal && this.shouldEmitSignal()) {
         logger.log('ScoutAgent', 'signal_detected', {
@@ -68,15 +80,27 @@ export class ScoutAgent {
   /**
    * Detect if current price meets signal criteria
    */
-  private detectSignal(currentPrice: number): Signal | null {
-    const confidence = this.calculateConfidence(currentPrice);
+  private detectSignal(
+    currentPrice: number,
+    intelligence: {
+      cmcSnapshot: any;
+      newsSentiment: any;
+      fearGreed: any;
+    }
+  ): Signal | null {
+    const confidence = this.calculateConfidence(currentPrice, intelligence);
+    const sentimentScore = intelligence.newsSentiment?.score ?? 0.5;
 
     // Signal threshold met and high confidence
-    if (currentPrice > this.signalThreshold && confidence >= this.confidenceThreshold) {
+    if (
+      currentPrice > this.signalThreshold &&
+      confidence >= this.confidenceThreshold &&
+      sentimentScore >= config.signals.sentimentThreshold
+    ) {
       return {
         id: `signal_${Date.now()}`,
         type: 'ETH_PRICE_SPIKE',
-        source: 'uniswap_api',
+        source: intelligence.cmcSnapshot ? 'cmc+uniswap+news' : 'uniswap+news',
         value: currentPrice,
         threshold: this.signalThreshold,
         confidence,
@@ -85,6 +109,13 @@ export class ScoutAgent {
           priceHistoryLength: this.priceHistory.getSize(),
           priceAverage: this.priceHistory.getAverage(),
           priceChange: this.getPriceChange(),
+          uniswapPrice: intelligence.cmcSnapshot ? undefined : currentPrice,
+          cmcPrice: intelligence.cmcSnapshot?.ethPriceUsd,
+          cmc24hChange: intelligence.cmcSnapshot?.percentChange24h,
+          newsSentiment: intelligence.newsSentiment?.score,
+          newsArticleCount: intelligence.newsSentiment?.articleCount,
+          fearGreedValue: intelligence.fearGreed?.value,
+          fearGreedLabel: intelligence.fearGreed?.label,
         },
       };
     }
@@ -95,7 +126,14 @@ export class ScoutAgent {
   /**
    * Calculate confidence score (0-1) based on price movement and history
    */
-  private calculateConfidence(currentPrice: number): number {
+  private calculateConfidence(
+    currentPrice: number,
+    intelligence: {
+      cmcSnapshot: any;
+      newsSentiment: any;
+      fearGreed: any;
+    }
+  ): number {
     const latest = this.priceHistory.getLatest();
     if (!latest) return 0.5; // First reading
 
@@ -107,7 +145,14 @@ export class ScoutAgent {
     const avgPrice = this.priceHistory.getAverage();
     const sustainedConfidence = avgPrice > this.signalThreshold * 0.9 ? 0.1 : 0;
 
-    return Math.min(1.0, changeConfidence + sustainedConfidence);
+    // Third-party contributions.
+    const sentimentBoost = ((intelligence.newsSentiment?.score ?? 0.5) - 0.5) * 0.2;
+    const fearGreedValue = intelligence.fearGreed?.value ?? 50;
+    const riskBoost = fearGreedValue >= 50 ? 0.05 : -0.05;
+
+    const combined = changeConfidence + sustainedConfidence + sentimentBoost + riskBoost;
+
+    return Math.max(0, Math.min(1.0, combined));
   }
 
   /**

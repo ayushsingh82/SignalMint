@@ -6,6 +6,8 @@ Detects market signals → Makes autonomous decisions → Executes real trades &
 
 Integrates: **Rare Protocol**, **Uniswap V4**, **Filecoin/IPFS**, **ERC-8004**, **Zyfai**, **OpenServ**, **ENS**.
 
+Market intelligence can be enriched with third-party feeds: **CoinMarketCap** (price/market metrics), **NewsAPI** (headline sentiment), and **Fear & Greed Index**.
+
 ---
 
 ## 📚 Documentation Structure

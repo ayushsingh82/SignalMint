@@ -1,0 +1,20 @@
+{
+  "version": "1.0.0",
+  "cycleId": "2026-03-19T16:52:23.025Z",
+  "startTime": "2026-03-19T16:52:23.027Z",
+  "endTime": "2026-03-19T16:52:27.368Z",
+  "signals": [],
+  "decisions": [],
+  "executions": [],
+  "verifications": [],
+  "summary": {
+    "signalsDetected": 0,
+    "decisionsGenerated": 0,
+    "executionsAttempted": 0,
+    "executionsSucceeded": 0,
+    "executionsFailed": 0,
+    "verificationsPass": 0,
+    "totalGasUsed": 0,
+    "totalCostETH": 0.00463
+  }
+}

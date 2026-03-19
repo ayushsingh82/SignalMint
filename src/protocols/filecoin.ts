@@ -1,19 +1,29 @@
-import { Web3Storage } from 'web3.storage';
 import { config } from '../shared/config';
 import { logger } from '../utils/logger';
+
+let Web3Storage: any;
+
+// Dynamically import web3.storage with fallback
+try {
+  const module = require('web3.storage');
+  Web3Storage = module.Web3Storage;
+} catch (e) {
+  console.warn('⚠️  web3.storage not available, using mock implementation');
+  Web3Storage = null;
+}
 
 /**
  * Filecoin/IPFS Storage Integration via Web3.storage
  * Provides persistent, verifiable storage for agent logs
  */
 export class FilecoinIntegration {
-  private client: Web3Storage | null = null;
+  private client: any = null;
   private token: string | undefined;
 
   constructor() {
     this.token = config.filecoin.web3StorageToken;
     
-    if (this.token) {
+    if (this.token && Web3Storage) {
       this.client = new Web3Storage({ token: this.token });
     }
   }

@@ -18,6 +18,11 @@ export const config = {
     apiKey: process.env.UNISWAP_API_KEY,
     chain: process.env.UNISWAP_CHAIN || 'sepolia',
   },
+
+  marketData: {
+    cmcApiKey: process.env.CMC_API_KEY,
+    newsApiKey: process.env.NEWS_API_KEY,
+  },
   
   filecoin: {
     web3StorageToken: process.env.WEB3_STORAGE_TOKEN,
@@ -44,9 +49,18 @@ export const config = {
 
   // Signal thresholds
   signals: {
-    ethPriceThreshold: 2500,
-    confidenceThreshold: 0.8,
-    priceCheckIntervalMs: 5000,
+    ethPriceThreshold: Number(
+      process.env.ETH_PRICE_THRESHOLD ||
+      process.env.ETH_PRICE_THRESHOLD_BUY ||
+      2500
+    ),
+    confidenceThreshold: Number(
+      process.env.SIGNAL_CONFIDENCE_THRESHOLD ||
+      process.env.MIN_CONFIDENCE ||
+      0.8
+    ),
+    sentimentThreshold: Number(process.env.SIGNAL_SENTIMENT_THRESHOLD || 0.5),
+    priceCheckIntervalMs: Number(process.env.PRICE_CHECK_INTERVAL_MS || 5000),
   },
 
   // Cycle limits

@@ -237,7 +237,8 @@ export class RareIntegration {
   private parseOutput(output: string): any {
     try {
       // Try parsing as JSON first
-      return JSON.parse(output);
+      const parsed = JSON.parse(output);
+      return this.normalizeParsedOutput(parsed);
     } catch {
       // If not JSON, try to extract key-value pairs
       const result: any = {};
@@ -250,8 +251,35 @@ export class RareIntegration {
         }
       }
 
-      return result;
+      const txHashMatch = output.match(/0x[a-fA-F0-9]{64}/);
+      if (txHashMatch) {
+        result.txHash = txHashMatch[0];
+      }
+
+      const tokenIdMatch = output.match(/token\s*id\s*[:=]?\s*(\d+)/i) || output.match(/tokenId\s*[:=]?\s*(\d+)/i);
+      if (tokenIdMatch) {
+        result.tokenId = Number(tokenIdMatch[1]);
+      }
+
+      const contractMatch = output.match(/contract\s*[:=]?\s*(0x[a-fA-F0-9]{40})/i);
+      if (contractMatch) {
+        result.contractAddress = contractMatch[1];
+      }
+
+      return this.normalizeParsedOutput(result);
     }
+  }
+
+  private normalizeParsedOutput(input: any): any {
+    const out = { ...input };
+    if (typeof out.tokenId === 'string' && /^\d+$/.test(out.tokenId)) {
+      out.tokenId = Number(out.tokenId);
+    }
+
+    out.txHash = out.txHash || out.transactionHash || out.hash;
+    out.contractAddress = out.contractAddress || out.contract || out.collectionAddress;
+    out.ipfsUri = out.ipfsUri || out.tokenUri || out.uri;
+    return out;
   }
 
   private camelCase(str: string): string {

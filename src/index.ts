@@ -1,20 +1,20 @@
-import { scoutAgent } from './scout';
-import { analystAgent } from './analyst';
-import { executorAgent } from './executor';
-import { verifierAgent } from './verifier';
+import { ScoutAgent } from './agents/scout';
+import { AnalystAgent } from './agents/analyst';
+import { ExecutorAgent } from './agents/executor';
+import { VerifierAgent } from './agents/verifier';
 
 // Export all agents
 export {
-  scoutAgent,
-  analystAgent,
-  executorAgent,
-  verifierAgent,
+  ScoutAgent,
+  AnalystAgent,
+  ExecutorAgent,
+  VerifierAgent,
 };
 
 // Export types
-export type { Signal, Decision, Execution, AgentMessage, AgentLog } from '../shared/types';
+export type { Signal, Decision, Execution, AgentMessage, AgentLog } from './shared/types';
 
 // Export utils
-export { logger } from '../utils/logger';
-export { messageBus } from '../shared/message';
-export { config } from '../shared/config';
+export { logger } from './utils/logger';
+export { messageBus } from './shared/message';
+export { config } from './shared/config';

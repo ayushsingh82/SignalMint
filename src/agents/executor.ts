@@ -1,7 +1,10 @@
+import fs from 'fs';
+import path from 'path';
 import { Execution, AgentMessage, Decision } from '../shared/types';
 import { messageBus } from '../shared/message';
 import { rareIntegration } from '../protocols/rare';
 import { uniswapIntegration } from '../protocols/uniswap';
+import { config } from '../shared/config';
 import { logger } from '../utils/logger';
 import { RetryableExecutor, Validator } from '../utils/helpers';
 
@@ -26,8 +29,10 @@ export class ExecutorAgent {
       // Initialize Rare CLI
       await rareIntegration.initialize();
 
-      // Check if collection exists, otherwise deploy
-      if (!this.nftContract) {
+      // Use configured contract when available, otherwise deploy a new collection.
+      if (config.rare.contractAddress) {
+        this.nftContract = config.rare.contractAddress;
+      } else if (!this.nftContract) {
         this.nftContract = await rareIntegration.deployCollection(
           'SignalMint Gallery',
           'SMINT',
@@ -57,6 +62,36 @@ export class ExecutorAgent {
       console.log(`\n⚙️  [ExecutorAgent] Executing decision: ${decision.type}`);
 
       if (decision.type === 'MINT') {
+        if (!this.canMintFromDecision(decision)) {
+          logger.log('ExecutorAgent', 'mint_blocked_by_condition', {
+            decisionId: decision.id,
+            conditionCheck: decision.conditionCheck,
+          }, 'failed');
+
+          const blockedExecution: Execution = {
+            id: `exec_mint_blocked_${Date.now()}`,
+            type: 'MINT_NFT',
+            result: 'failed',
+            error: 'Mint blocked: condition check did not pass in ExecutorAgent',
+            metadata: {
+              decisionId: decision.id,
+              conditionCheck: decision.conditionCheck,
+            },
+            timestamp: new Date(),
+            attempts: 1,
+          };
+
+          logger.recordExecution(blockedExecution, false);
+          await messageBus.sendMessage({
+            from: 'ExecutorAgent',
+            to: 'VerifierAgent',
+            type: 'execution_result',
+            payload: blockedExecution,
+            timestamp: new Date(),
+          });
+          return;
+        }
+
         // Execute mint + optional swap
         const execution = await this.executeMint(decision);
 
@@ -101,22 +136,33 @@ export class ExecutorAgent {
       const nftDescription =
         `Autonomous mint triggered by market signal. Decision ID: ${decision.id}`;
 
+      const conditionText = decision.conditionCheck
+        ? `${decision.conditionCheck.metric} ${decision.conditionCheck.operator} ${decision.conditionCheck.threshold}`
+        : 'UNKNOWN_CONDITION';
+
+      const txRefs = [`decision:${decision.id}`];
+
       const attributes: Record<string, string> = {
         'Signal_Type': 'ETH_PRICE_SPIKE',
-        'Confidence': (decision.confidence * 100).toFixed(0),
+        'Condition': conditionText,
+        'Confidence': (decision.confidence * 100).toFixed(2),
+        'Condition_Passed': String(Boolean(decision.conditionCheck?.passed)),
+        'Observed_Value': String(decision.conditionCheck?.currentValue ?? ''),
         'Timestamp': new Date().toISOString(),
+        'Tx_Refs': txRefs.join(','),
         'Decision_ID': decision.id,
       };
 
-      // Mint NFT (using mock image path for demo)
+      // Mint NFT with explicit condition metadata following Rare CLI attribute format.
       console.log(`🎨 Minting NFT: ${nftName}`);
+      const imagePath = this.createSignalArt(decision, nftName);
 
       const mintResult = await RetryableExecutor.execute(async () => {
         return await rareIntegration.mintNFT(
           this.nftContract!,
           nftName,
           nftDescription,
-          './assets/signal.png', // Mock image path (real deployment would generate actual image)
+          imagePath,
           attributes
         );
       }, 3);
@@ -183,6 +229,55 @@ export class ExecutorAgent {
         attempts: 1,
       };
     }
+  }
+
+  private canMintFromDecision(decision: Decision): boolean {
+    if (decision.type !== 'MINT') return false;
+    if (!decision.conditionCheck) return false;
+    if (!decision.conditionCheck.passed) return false;
+    return true;
+  }
+
+  private createSignalArt(decision: Decision, nftName: string): string {
+    const imageDir = path.join(process.cwd(), 'logs', 'nft-images');
+    if (!fs.existsSync(imageDir)) {
+      fs.mkdirSync(imageDir, { recursive: true });
+    }
+
+    const fileName = `${decision.id}.svg`;
+    const filePath = path.join(imageDir, fileName);
+    const condition = decision.conditionCheck;
+    const confidence = (decision.confidence * 100).toFixed(2);
+
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#121826"/>
+      <stop offset="100%" stop-color="#0b4a6f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" fill="url(#bg)"/>
+  <text x="80" y="160" fill="#f8fafc" font-size="56" font-family="monospace">${this.escapeXml(nftName)}</text>
+  <text x="80" y="260" fill="#cbd5e1" font-size="36" font-family="monospace">Decision: ${this.escapeXml(decision.id)}</text>
+  <text x="80" y="330" fill="#cbd5e1" font-size="36" font-family="monospace">Confidence: ${confidence}%</text>
+  <text x="80" y="400" fill="#cbd5e1" font-size="36" font-family="monospace">Condition: ${this.escapeXml(condition?.metric ?? 'N/A')} ${this.escapeXml(condition?.operator ?? '')} ${condition?.threshold ?? 'N/A'}</text>
+  <text x="80" y="470" fill="#cbd5e1" font-size="36" font-family="monospace">Observed: ${condition?.currentValue ?? 'N/A'}</text>
+  <text x="80" y="540" fill="#cbd5e1" font-size="36" font-family="monospace">Passed: ${String(condition?.passed ?? false)}</text>
+  <text x="80" y="610" fill="#94a3b8" font-size="28" font-family="monospace">${new Date().toISOString()}</text>
+</svg>`;
+
+    fs.writeFileSync(filePath, svg, { encoding: 'utf-8' });
+    return filePath;
+  }
+
+  private escapeXml(input: string): string {
+    return input
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
   }
 
   /**

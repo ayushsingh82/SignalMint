@@ -62,7 +62,8 @@ rare status --contract 0x... --token-id 1
 ```
 
 ### Integration Points
-- **Agent Executor** calls `rare mint` with metadata containing signal data
+- **Agent Executor** calls `rare mint` only after condition check passes (`ETH_PRICE > threshold` and confidence threshold)
+- **Mint metadata attributes** include `Condition`, `Confidence`, `Timestamp`, `Condition_Passed`, and `Tx_Refs`
 - **Agent Verifier** calls `rare auction status` to confirm on-chain state
 - **Storage**: NFT metadata stored on IPFS, referenced via token URI
 - **Output logging**: Mint tx hash, token ID, auction status in agent_log.json

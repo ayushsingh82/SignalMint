@@ -18,6 +18,20 @@ export interface Decision {
   confidence: number;
   reasoning: string;
   estimatedCost: string;
+  conditionCheck?: {
+    metric: 'ETH_PRICE';
+    operator: '>' | '>=' | '<' | '<=';
+    currentValue: number;
+    threshold: number;
+    passed: boolean;
+  };
+  signalSnapshot?: {
+    type: Signal['type'];
+    source: string;
+    value: number;
+    threshold: number;
+    detectedAt: string;
+  };
   timestamp: Date;
 }
 
