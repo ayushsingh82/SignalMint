@@ -22,6 +22,7 @@ export const config = {
   marketData: {
     cmcApiKey: process.env.CMC_API_KEY,
     newsApiKey: process.env.NEWS_API_KEY,
+    polymarketQuery: process.env.POLYMARKET_QUERY || 'ethereum',
   },
 
   filecoin: {

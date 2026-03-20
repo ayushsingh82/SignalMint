@@ -5,12 +5,13 @@ import { marketDataIntegration } from '../protocols/marketData';
 import { config } from '../shared/config';
 import { logger } from '../utils/logger';
 import { CircularBuffer } from '../utils/helpers';
-import { CmcSnapshot, NewsSentimentSnapshot, FearGreedSnapshot } from '../protocols/marketData';
+import { CmcSnapshot, NewsSentimentSnapshot, FearGreedSnapshot, PolymarketSnapshot } from '../protocols/marketData';
 
 type IntelligenceBundle = {
   cmcSnapshot: CmcSnapshot | null;
   newsSentiment: NewsSentimentSnapshot | null;
   fearGreed: FearGreedSnapshot | null;
+  polymarketSentiment: PolymarketSnapshot | null;
 };
 
 /**
@@ -34,11 +35,12 @@ export class ScoutAgent {
   async run(): Promise<void> {
     try {
       // Fetch primary and third-party market intelligence in parallel.
-      const [uniswapPrice, cmcSnapshot, newsSentiment, fearGreed] = await Promise.all([
+      const [uniswapPrice, cmcSnapshot, newsSentiment, fearGreed, polymarketSentiment] = await Promise.all([
         uniswapIntegration.getPrice('WETH', 'USDC'),
         marketDataIntegration.getCmcSnapshot(),
         marketDataIntegration.getNewsSentiment(),
         marketDataIntegration.getFearGreed(),
+        marketDataIntegration.getPolymarketSentiment(),
       ]);
 
       const price = cmcSnapshot?.ethPriceUsd ?? uniswapPrice;
@@ -51,6 +53,7 @@ export class ScoutAgent {
         cmcSnapshot,
         newsSentiment,
         fearGreed,
+        polymarketSentiment,
       });
 
       if (signal && this.shouldEmitSignal()) {
@@ -92,7 +95,9 @@ export class ScoutAgent {
     intelligence: IntelligenceBundle
   ): Signal | null {
     const confidence = this.calculateConfidence(currentPrice, intelligence);
-    const sentimentScore = intelligence.newsSentiment?.score ?? 0.5;
+    const newsScore = intelligence.newsSentiment?.score ?? 0.5;
+    const polymarketScore = intelligence.polymarketSentiment?.score ?? 0.5;
+    const sentimentScore = newsScore * 0.6 + polymarketScore * 0.4;
 
     // Signal threshold met and high confidence
     if (
@@ -103,7 +108,7 @@ export class ScoutAgent {
       return {
         id: `signal_${Date.now()}`,
         type: 'ETH_PRICE_SPIKE',
-        source: intelligence.cmcSnapshot ? 'cmc+uniswap+news' : 'uniswap+news',
+        source: intelligence.cmcSnapshot ? 'cmc+uniswap+news+polymarket' : 'uniswap+news+polymarket',
         value: currentPrice,
         threshold: this.signalThreshold,
         confidence,
@@ -117,6 +122,8 @@ export class ScoutAgent {
           cmc24hChange: intelligence.cmcSnapshot?.percentChange24h,
           newsSentiment: intelligence.newsSentiment?.score,
           newsArticleCount: intelligence.newsSentiment?.articleCount,
+          polymarketSentiment: intelligence.polymarketSentiment?.score,
+          polymarketMarketCount: intelligence.polymarketSentiment?.marketCount,
           fearGreedValue: intelligence.fearGreed?.value,
           fearGreedLabel: intelligence.fearGreed?.label,
         },
@@ -145,11 +152,12 @@ export class ScoutAgent {
     const sustainedConfidence = avgPrice > this.signalThreshold * 0.9 ? 0.1 : 0;
 
     // Third-party contributions.
-    const sentimentBoost = ((intelligence.newsSentiment?.score ?? 0.5) - 0.5) * 0.2;
+    const newsBoost = ((intelligence.newsSentiment?.score ?? 0.5) - 0.5) * 0.15;
+    const polymarketBoost = ((intelligence.polymarketSentiment?.score ?? 0.5) - 0.5) * 0.2;
     const fearGreedValue = intelligence.fearGreed?.value ?? 50;
     const riskBoost = fearGreedValue >= 50 ? 0.05 : -0.05;
 
-    const combined = changeConfidence + sustainedConfidence + sentimentBoost + riskBoost;
+    const combined = changeConfidence + sustainedConfidence + newsBoost + polymarketBoost + riskBoost;
 
     return Math.max(0, Math.min(1.0, combined));
   }

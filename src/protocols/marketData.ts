@@ -27,11 +27,21 @@ export interface FearGreedSnapshot {
   fetchedAt: string;
 }
 
+export interface PolymarketSnapshot {
+  score: number; // 0..1 where > 0.5 is bullish
+  marketCount: number;
+  bullishCount: number;
+  bearishCount: number;
+  topMarkets: string[];
+  fetchedAt: string;
+}
+
 export class MarketDataIntegration {
   private cmcApiKey: string | undefined;
   private newsApiKey: string | undefined;
   private cmcClient: AxiosInstance;
   private newsClient: AxiosInstance;
+  private polymarketClient: AxiosInstance;
 
   constructor() {
     this.cmcApiKey = config.marketData.cmcApiKey;
@@ -47,6 +57,11 @@ export class MarketDataIntegration {
 
     this.newsClient = axios.create({
       baseURL: 'https://newsapi.org/v2',
+      timeout: 10000,
+    });
+
+    this.polymarketClient = axios.create({
+      baseURL: 'https://gamma-api.polymarket.com',
       timeout: 10000,
     });
   }
@@ -189,6 +204,132 @@ export class MarketDataIntegration {
       logger.log('MarketDataIntegration', 'getFearGreed', {}, 'failed', String(error));
       return null;
     }
+  }
+
+  async getPolymarketSentiment(): Promise<PolymarketSnapshot | null> {
+    try {
+      const query = config.marketData.polymarketQuery || 'ethereum';
+      const res = await this.polymarketClient.get('/markets', {
+        params: {
+          closed: false,
+          archived: false,
+          limit: 100,
+        },
+      });
+
+      const markets = Array.isArray(res.data) ? res.data : [];
+
+      const filtered = markets.filter((m: unknown) => {
+        const market = m as Record<string, unknown>;
+        const title = String(market.question || market.title || '').toLowerCase();
+        return title.includes(query.toLowerCase()) || title.includes('eth');
+      });
+
+      if (filtered.length === 0) {
+        return {
+          score: 0.5,
+          marketCount: 0,
+          bullishCount: 0,
+          bearishCount: 0,
+          topMarkets: [],
+          fetchedAt: new Date().toISOString(),
+        };
+      }
+
+      let bullish = 0;
+      let bearish = 0;
+      let aggregate = 0;
+
+      for (const item of filtered) {
+        const market = item as Record<string, unknown>;
+
+        const probs = this.extractOutcomeProbabilities(market);
+        const bullishProb = this.pickBullishProbability(market, probs);
+
+        aggregate += bullishProb;
+        if (bullishProb >= 0.5) bullish++;
+        else bearish++;
+      }
+
+      const score = Math.max(0, Math.min(1, aggregate / filtered.length));
+      const snapshot: PolymarketSnapshot = {
+        score,
+        marketCount: filtered.length,
+        bullishCount: bullish,
+        bearishCount: bearish,
+        topMarkets: filtered
+          .slice(0, 3)
+          .map((m: Record<string, unknown>) => String(m.question || m.title || 'Untitled')),
+        fetchedAt: new Date().toISOString(),
+      };
+
+      logger.log('MarketDataIntegration', 'getPolymarketSentiment', {
+        score: snapshot.score,
+        marketCount: snapshot.marketCount,
+      }, 'success');
+
+      return snapshot;
+    } catch (error) {
+      logger.log('MarketDataIntegration', 'getPolymarketSentiment', {}, 'failed', String(error));
+      return null;
+    }
+  }
+
+  private extractOutcomeProbabilities(market: Record<string, unknown>): number[] {
+    const pricesRaw = market.outcomePrices;
+    if (Array.isArray(pricesRaw)) {
+      return pricesRaw
+        .map((v) => Number(v))
+        .filter((n) => Number.isFinite(n));
+    }
+
+    if (typeof pricesRaw === 'string') {
+      try {
+        const parsed = JSON.parse(pricesRaw);
+        if (Array.isArray(parsed)) {
+          return parsed.map((v) => Number(v)).filter((n) => Number.isFinite(n));
+        }
+      } catch {
+        // ignore parse errors and fallback below
+      }
+    }
+
+    return [];
+  }
+
+  private pickBullishProbability(
+    market: Record<string, unknown>,
+    probs: number[]
+  ): number {
+    if (probs.length === 0) return 0.5;
+
+    const outcomesRaw = market.outcomes;
+    let outcomes: string[] = [];
+
+    if (Array.isArray(outcomesRaw)) {
+      outcomes = outcomesRaw.map((x) => String(x).toLowerCase());
+    } else if (typeof outcomesRaw === 'string') {
+      try {
+        const parsed = JSON.parse(outcomesRaw);
+        if (Array.isArray(parsed)) {
+          outcomes = parsed.map((x) => String(x).toLowerCase());
+        }
+      } catch {
+        outcomes = [];
+      }
+    }
+
+    if (outcomes.length === probs.length) {
+      const bullishIndex = outcomes.findIndex((o) =>
+        o.includes('yes') || o.includes('up') || o.includes('above') || o.includes('increase')
+      );
+      if (bullishIndex >= 0) {
+        return probs[bullishIndex];
+      }
+    }
+
+    // Fallback: binary markets usually index 0 as YES.
+    return probs[0] ?? 0.5;
   }
 }
 
