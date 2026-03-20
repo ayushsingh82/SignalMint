@@ -1,8 +1,22 @@
 import { execSync } from 'child_process';
-import path from 'path';
 import { config } from '../shared/config';
 import { logger } from '../utils/logger';
 import { Validator, RetryableExecutor } from '../utils/helpers';
+
+type RareParsedOutput = Record<string, unknown> & {
+  txHash?: string;
+  tokenId?: number | string;
+  ipfsUri?: string;
+  contractAddress?: string;
+  auctionId?: number | string;
+  tokens?: unknown[];
+  transactionHash?: string;
+  hash?: string;
+  contract?: string;
+  collectionAddress?: string;
+  tokenUri?: string;
+  uri?: string;
+};
 
 /**
  * Rare Protocol CLI Integration for NFT operations
@@ -66,11 +80,13 @@ export class RareIntegration {
       logger.recordExecution({
         id: `deploy_${Date.now()}`,
         type: 'DEPLOY_COLLECTION',
+        result: 'success',
         metadata: result,
         timestamp: new Date(),
+        attempts: 1,
       }, true);
 
-      return result.contractAddress;
+      return String(result.contractAddress || '');
     }, 3);
   }
 
@@ -112,15 +128,17 @@ export class RareIntegration {
       logger.recordExecution({
         id: `mint_${Date.now()}`,
         type: 'MINT_NFT',
-        txHash: result.txHash,
+        txHash: String(result.txHash || ''),
+        result: 'success',
         metadata: result,
         timestamp: new Date(),
+        attempts: 1,
       }, true);
 
       return {
-        txHash: result.txHash,
-        tokenId: result.tokenId,
-        ipfsUri: result.ipfsUri,
+        txHash: String(result.txHash || ''),
+        tokenId: Number(result.tokenId || 0),
+        ipfsUri: String(result.ipfsUri || ''),
       };
     }, 3);
   }
@@ -156,14 +174,16 @@ export class RareIntegration {
       logger.recordExecution({
         id: `auction_${Date.now()}`,
         type: 'CREATE_AUCTION',
-        txHash: result.txHash,
+        txHash: String(result.txHash || ''),
+        result: 'success',
         metadata: result,
         timestamp: new Date(),
+        attempts: 1,
       }, true);
 
       return {
-        txHash: result.txHash,
-        auctionId: result.auctionId,
+        txHash: String(result.txHash || ''),
+        auctionId: Number(result.auctionId || 0),
       };
     }, 3);
   }
@@ -171,7 +191,7 @@ export class RareIntegration {
   async getAuctionStatus(
     contractAddress: string,
     tokenId: number
-  ): Promise<any> {
+  ): Promise<RareParsedOutput> {
     if (!this.isInitialized) await this.initialize();
 
     try {
@@ -201,11 +221,11 @@ export class RareIntegration {
         txHash: result.txHash,
       }, 'success');
 
-      return { txHash: result.txHash };
+      return { txHash: String(result.txHash || '') };
     }, 3);
   }
 
-  async searchOwnTokens(limit: number = 10): Promise<any[]> {
+  async searchOwnTokens(limit: number = 10): Promise<unknown[]> {
     if (!this.isInitialized) await this.initialize();
 
     try {
@@ -227,21 +247,22 @@ export class RareIntegration {
         stdio: ['pipe', 'pipe', 'pipe'],
       });
       return output.trim();
-    } catch (error: any) {
-      const errorMsg = error.stderr?.toString() || error.stdout?.toString() || String(error);
+    } catch (error: unknown) {
+      const err = error as { stderr?: string | Buffer; stdout?: string | Buffer };
+      const errorMsg = err.stderr?.toString() || err.stdout?.toString() || String(error);
       console.error(`❌ Command failed: ${errorMsg}`);
       throw new Error(`Rare CLI error: ${errorMsg}`);
     }
   }
 
-  private parseOutput(output: string): any {
+  private parseOutput(output: string): RareParsedOutput {
     try {
       // Try parsing as JSON first
       const parsed = JSON.parse(output);
       return this.normalizeParsedOutput(parsed);
     } catch {
       // If not JSON, try to extract key-value pairs
-      const result: any = {};
+      const result: Record<string, unknown> = {};
       const lines = output.split('\n');
 
       for (const line of lines) {
@@ -266,11 +287,11 @@ export class RareIntegration {
         result.contractAddress = contractMatch[1];
       }
 
-      return this.normalizeParsedOutput(result);
+      return this.normalizeParsedOutput(result as RareParsedOutput);
     }
   }
 
-  private normalizeParsedOutput(input: any): any {
+  private normalizeParsedOutput(input: RareParsedOutput): RareParsedOutput {
     const out = { ...input };
     if (typeof out.tokenId === 'string' && /^\d+$/.test(out.tokenId)) {
       out.tokenId = Number(out.tokenId);

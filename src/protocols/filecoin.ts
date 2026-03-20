@@ -1,35 +1,19 @@
 import { config } from '../shared/config';
 import { logger } from '../utils/logger';
 
-let Web3Storage: any;
-
-// Dynamically import web3.storage with fallback
-try {
-  const module = require('web3.storage');
-  Web3Storage = module.Web3Storage;
-} catch (e) {
-  console.warn('⚠️  web3.storage not available, using mock implementation');
-  Web3Storage = null;
-}
-
 /**
  * Filecoin/IPFS Storage Integration via Web3.storage
  * Provides persistent, verifiable storage for agent logs
  */
 export class FilecoinIntegration {
-  private client: any = null;
   private token: string | undefined;
 
   constructor() {
     this.token = config.filecoin.web3StorageToken;
-    
-    if (this.token && Web3Storage) {
-      this.client = new Web3Storage({ token: this.token });
-    }
   }
 
   async uploadLog(logContent: string, fileName?: string): Promise<string> {
-    if (!this.client) {
+    if (!this.token) {
       console.warn('⚠️  Web3.storage token not configured, using mock CID');
       return this.generateMockCID();
     }
@@ -40,10 +24,23 @@ export class FilecoinIntegration {
         fileName || `agent_log_${new Date().toISOString()}.json`,
         { type: 'application/json' }
       );
-
-      const cid = await this.client.put([file], {
-        name: `agent_log_${new Date().toISOString().replace(/[:.]/g, '-')}`,
+      const response = await fetch('https://api.web3.storage/upload', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+        },
+        body: file,
       });
+
+      if (!response.ok) {
+        throw new Error(`web3.storage upload failed: ${response.status} ${response.statusText}`);
+      }
+
+      const body = (await response.json()) as { cid?: string };
+      if (!body.cid) {
+        throw new Error('web3.storage response missing CID');
+      }
+      const cid = body.cid;
 
       logger.log('FilecoinIntegration', 'uploadLog', {
         cid,
@@ -59,7 +56,7 @@ export class FilecoinIntegration {
     }
   }
 
-  async uploadJSON(data: Record<string, any>, fileName?: string): Promise<string> {
+  async uploadJSON(data: Record<string, unknown>, fileName?: string): Promise<string> {
     const jsonContent = JSON.stringify(data, null, 2);
     return this.uploadLog(jsonContent, fileName);
   }

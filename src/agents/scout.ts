@@ -5,6 +5,13 @@ import { marketDataIntegration } from '../protocols/marketData';
 import { config } from '../shared/config';
 import { logger } from '../utils/logger';
 import { CircularBuffer } from '../utils/helpers';
+import { CmcSnapshot, NewsSentimentSnapshot, FearGreedSnapshot } from '../protocols/marketData';
+
+type IntelligenceBundle = {
+  cmcSnapshot: CmcSnapshot | null;
+  newsSentiment: NewsSentimentSnapshot | null;
+  fearGreed: FearGreedSnapshot | null;
+};
 
 /**
  * Scout Agent: Continuously monitors market signals
@@ -82,11 +89,7 @@ export class ScoutAgent {
    */
   private detectSignal(
     currentPrice: number,
-    intelligence: {
-      cmcSnapshot: any;
-      newsSentiment: any;
-      fearGreed: any;
-    }
+    intelligence: IntelligenceBundle
   ): Signal | null {
     const confidence = this.calculateConfidence(currentPrice, intelligence);
     const sentimentScore = intelligence.newsSentiment?.score ?? 0.5;
@@ -128,11 +131,7 @@ export class ScoutAgent {
    */
   private calculateConfidence(
     currentPrice: number,
-    intelligence: {
-      cmcSnapshot: any;
-      newsSentiment: any;
-      fearGreed: any;
-    }
+    intelligence: IntelligenceBundle
   ): number {
     const latest = this.priceHistory.getLatest();
     if (!latest) return 0.5; // First reading

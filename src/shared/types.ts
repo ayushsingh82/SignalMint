@@ -7,7 +7,7 @@ export interface Signal {
   threshold: number;
   confidence: number;
   timestamp: Date;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 // Decision types
@@ -38,11 +38,11 @@ export interface Decision {
 // Execution types
 export interface Execution {
   id: string;
-  type: 'MINT_NFT' | 'CREATE_AUCTION' | 'EXECUTE_SWAP' | 'VERIFY_TX';
+  type: 'MINT_NFT' | 'CREATE_AUCTION' | 'EXECUTE_SWAP' | 'VERIFY_TX' | 'DEPLOY_COLLECTION';
   txHash?: string;
   result: 'pending' | 'success' | 'failed';
   error?: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   timestamp: Date;
   attempts: number;
 }
@@ -52,7 +52,7 @@ export interface AgentMessage {
   from: string;
   to: string;
   type: string;
-  payload: Record<string, any>;
+  payload: unknown;
   timestamp: Date;
 }
 
@@ -61,7 +61,7 @@ export interface AgentLogEntry {
   timestamp: Date;
   agentName: string;
   actionType: string;
-  data: Record<string, any>;
+  data: unknown;
   result: 'success' | 'failed';
   error?: string;
 }
@@ -78,7 +78,7 @@ export interface AgentLog {
   signals: Signal[];
   decisions: Decision[];
   executions: Execution[];
-  verifications: any[];
+  verifications: unknown[];
   storage?: {
     logIpfsCid?: string;
     logUrl?: string;
@@ -87,7 +87,7 @@ export interface AgentLog {
   erc8004?: {
     agentId?: number;
     identity_tx?: string;
-    reputation_feedback?: any;
+    reputation_feedback?: unknown;
   };
   summary: {
     signalsDetected: number;

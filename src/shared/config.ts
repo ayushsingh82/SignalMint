@@ -86,12 +86,15 @@ for (const key of criticalVars) {
   }
 }
 
-export function getConfig(key: string): any {
+export function getConfig(key: string): unknown {
   const parts = key.split('.');
-  let value: any = config;
+  let value: unknown = config;
 
   for (const part of parts) {
-    value = value?.[part];
+    if (typeof value !== 'object' || value === null) {
+      return undefined;
+    }
+    value = (value as Record<string, unknown>)[part];
   }
 
   return value;

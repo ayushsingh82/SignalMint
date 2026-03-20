@@ -48,7 +48,7 @@ export class UniswapIntegration {
         }, 'success');
 
         return price;
-      } catch (error) {
+      } catch {
         // Fallback to mock price for demo
         console.warn(`⚠️  Using mock price (API unavailable): ${tokenIn} → ${tokenOut}`);
         return this.getMockPrice(tokenIn, tokenOut);
@@ -99,10 +99,10 @@ export class UniswapIntegration {
         }, 'success');
 
         return result;
-      } catch (error) {
+      } catch {
         // Fallback to mock quote
         console.warn(`⚠️  Using mock quote (API unavailable): ${amountIn} ${tokenIn}`);
-        return this.getMockQuote(amountIn, tokenOut);
+        return this.getMockQuote(amountIn);
       }
     }, 2);
   }
@@ -142,8 +142,10 @@ export class UniswapIntegration {
         id: `swap_${Date.now()}`,
         type: 'EXECUTE_SWAP',
         txHash,
+        result: 'success',
         metadata: params,
         timestamp: new Date(),
+        attempts: 1,
       }, true);
 
       return txHash;
@@ -168,7 +170,7 @@ export class UniswapIntegration {
         }, 'success');
 
         return true;
-      } catch (error) {
+      } catch {
         if (Date.now() - startTime > maxWaitMs) {
           throw new Error(`Swap timeout: ${txHash}`);
         }
@@ -212,8 +214,7 @@ export class UniswapIntegration {
   }
 
   private getMockQuote(
-    amountIn: string,
-    tokenOut: string
+    amountIn: string
   ): {
     amountOut: string;
     priceImpact: number;

@@ -6,7 +6,7 @@ import { rareIntegration } from '../protocols/rare';
 import { uniswapIntegration } from '../protocols/uniswap';
 import { config } from '../shared/config';
 import { logger } from '../utils/logger';
-import { RetryableExecutor, Validator } from '../utils/helpers';
+import { RetryableExecutor } from '../utils/helpers';
 
 /**
  * Executor Agent: Executes autonomous actions
