@@ -267,7 +267,9 @@ export class RareIntegration {
 
       for (const line of lines) {
         if (line.includes(':')) {
-          const [key, value] = line.split(':').map((s) => s.trim());
+          const idx = line.indexOf(':');
+          const key = line.slice(0, idx).trim();
+          const value = line.slice(idx + 1).trim();
           result[this.camelCase(key)] = value;
         }
       }
@@ -285,6 +287,16 @@ export class RareIntegration {
       const contractMatch = output.match(/contract\s*[:=]?\s*(0x[a-fA-F0-9]{40})/i);
       if (contractMatch) {
         result.contractAddress = contractMatch[1];
+      }
+
+      const deployedMatch = output.match(/deployed\s+at\s*[:=]?\s*(0x[a-fA-F0-9]{40})/i);
+      if (deployedMatch) {
+        result.contractAddress = deployedMatch[1];
+      }
+
+      const ipfsMatch = output.match(/ipfs:\/\/[A-Za-z0-9]+/i);
+      if (ipfsMatch) {
+        result.ipfsUri = ipfsMatch[0];
       }
 
       return this.normalizeParsedOutput(result as RareParsedOutput);

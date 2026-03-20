@@ -2,6 +2,7 @@ import { Execution, AgentMessage } from '../shared/types';
 import { messageBus } from '../shared/message';
 import { filecoinIntegration } from '../protocols/filecoin';
 import { logger } from '../utils/logger';
+import { config } from '../shared/config';
 
 /**
  * Verifier Agent: Validates executions and logs results to persistent storage
@@ -77,14 +78,64 @@ export class VerifierAgent {
     blockNumber?: number;
     gasUsed?: number;
   }> {
-    return {
-      executionId: execution.id,
-      txHash: execution.txHash,
-      confirmed: execution.result === 'success',
-      status: execution.result === 'success' ? 'passed' : 'failed',
-      blockNumber: 123456 + Math.floor(Math.random() * 100), // Mock
-      gasUsed: 185342, // Mock
-    };
+    if (!execution.txHash) {
+      return {
+        executionId: execution.id,
+        confirmed: false,
+        status: 'failed',
+      };
+    }
+
+    try {
+      const rpcResponse = await fetch(config.rare.rpcUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'eth_getTransactionReceipt',
+          params: [execution.txHash],
+        }),
+      });
+
+      const json = (await rpcResponse.json()) as {
+        result?: {
+          status?: string;
+          blockNumber?: string;
+          gasUsed?: string;
+        } | null;
+      };
+
+      const receipt = json.result;
+      if (!receipt) {
+        return {
+          executionId: execution.id,
+          txHash: execution.txHash,
+          confirmed: false,
+          status: 'pending',
+        };
+      }
+
+      const statusHex = receipt.status || '0x0';
+      const passed = statusHex === '0x1';
+
+      return {
+        executionId: execution.id,
+        txHash: execution.txHash,
+        confirmed: true,
+        status: passed ? 'passed' : 'failed',
+        blockNumber: receipt.blockNumber ? parseInt(receipt.blockNumber, 16) : undefined,
+        gasUsed: receipt.gasUsed ? parseInt(receipt.gasUsed, 16) : undefined,
+      };
+    } catch (error) {
+      logger.log('VerifierAgent', 'verifyExecution', { txHash: execution.txHash }, 'failed', String(error));
+      return {
+        executionId: execution.id,
+        txHash: execution.txHash,
+        confirmed: false,
+        status: 'failed',
+      };
+    }
   }
 
   /**

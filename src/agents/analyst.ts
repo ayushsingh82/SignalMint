@@ -1,5 +1,6 @@
 import { Decision, AgentMessage, Signal } from '../shared/types';
 import { messageBus } from '../shared/message';
+import { config } from '../shared/config';
 import { logger } from '../utils/logger';
 
 /**
@@ -7,7 +8,7 @@ import { logger } from '../utils/logger';
  * Evaluates confidence, determines action type (MINT, SKIP, etc.)
  */
 export class AnalystAgent {
-  private confidenceThreshold = 0.8;
+  private confidenceThreshold = config.signals.confidenceThreshold;
   private gasEstimate = '0.05'; // ETH
   private decisionLog: Decision[] = [];
 

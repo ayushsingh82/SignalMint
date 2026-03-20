@@ -7,21 +7,41 @@ import { logger } from '../utils/logger';
  */
 export class FilecoinIntegration {
   private token: string | undefined;
+  private pinataJwt: string | undefined;
+  private pinataApiKey: string | undefined;
+  private pinataSecretKey: string | undefined;
 
   constructor() {
     this.token = config.filecoin.web3StorageToken;
+    this.pinataJwt = config.pinata.jwt;
+    this.pinataApiKey = config.pinata.apiKey;
+    this.pinataSecretKey = config.pinata.secretKey;
+  }
+
+  private hasUsableWeb3Token(): boolean {
+    if (!this.token) return false;
+    const t = this.token.toLowerCase();
+    if (t.includes('your_web3_storage_token_here')) return false;
+    if (t.includes('placeholder')) return false;
+    return this.token.length > 20;
   }
 
   async uploadLog(logContent: string, fileName?: string): Promise<string> {
-    if (!this.token) {
-      console.warn('⚠️  Web3.storage token not configured, using mock CID');
+    const targetName = fileName || `agent_log_${new Date().toISOString()}.json`;
+
+    if (!this.hasUsableWeb3Token()) {
+      const pinataCid = await this.uploadViaPinata(logContent, targetName);
+      if (pinataCid) {
+        return pinataCid;
+      }
+      console.warn('⚠️  No storage credentials configured, using mock CID');
       return this.generateMockCID();
     }
 
     try {
       const file = new File(
         [logContent],
-        fileName || `agent_log_${new Date().toISOString()}.json`,
+        targetName,
         { type: 'application/json' }
       );
       const response = await fetch('https://api.web3.storage/upload', {
@@ -53,6 +73,78 @@ export class FilecoinIntegration {
       console.warn('⚠️  Filecoin upload failed, using mock CID');
       logger.log('FilecoinIntegration', 'uploadLog', {}, 'failed', String(error));
       return this.generateMockCID();
+    }
+  }
+
+  private async uploadViaPinata(logContent: string, fileName: string): Promise<string | null> {
+    if (!this.pinataJwt && !(this.pinataApiKey && this.pinataSecretKey)) {
+      return null;
+    }
+
+    try {
+      const headers: Record<string, string> = {};
+      if (this.pinataJwt) {
+        headers.Authorization = `Bearer ${this.pinataJwt}`;
+      } else if (this.pinataApiKey && this.pinataSecretKey) {
+        headers.pinata_api_key = this.pinataApiKey;
+        headers.pinata_secret_api_key = this.pinataSecretKey;
+      }
+
+      // First attempt: file upload
+      const file = new File([logContent], fileName, { type: 'application/json' });
+      const form = new FormData();
+      form.append('file', file);
+      form.append(
+        'pinataMetadata',
+        JSON.stringify({
+          name: fileName,
+          keyvalues: { source: 'signalmint' },
+        })
+      );
+
+      let response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+        method: 'POST',
+        headers,
+        body: form,
+      });
+
+      // Fallback: JSON pinning for keys that cannot pin files directly.
+      if (!response.ok) {
+        response = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
+          method: 'POST',
+          headers: {
+            ...headers,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            pinataMetadata: {
+              name: fileName,
+              keyvalues: { source: 'signalmint' },
+            },
+            pinataContent: JSON.parse(logContent),
+          }),
+        });
+      }
+
+      if (!response.ok) {
+        throw new Error(`Pinata upload failed: ${response.status} ${response.statusText}`);
+      }
+
+      const body = (await response.json()) as { IpfsHash?: string };
+      const cid = body.IpfsHash;
+      if (!cid) {
+        throw new Error('Pinata response missing IpfsHash');
+      }
+
+      logger.log('FilecoinIntegration', 'uploadViaPinata', {
+        cid,
+        size: logContent.length,
+      }, 'success');
+
+      return cid;
+    } catch (error) {
+      logger.log('FilecoinIntegration', 'uploadViaPinata', {}, 'failed', String(error));
+      return null;
     }
   }
 
