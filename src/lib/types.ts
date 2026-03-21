@@ -9,6 +9,8 @@ export interface Mint {
   name: string;
   signal: string;
   status: MintStatus;
+  /** ERC-8004 identity id for the minting agent (when known) */
+  identityId?: string;
   /** IPFS or gateway URL for the artwork */
   imageUri?: string;
   /** Token ID on-chain (when known) */

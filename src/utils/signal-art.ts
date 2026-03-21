@@ -44,11 +44,18 @@ export function truncateSignalSubtitle(s: string, max = 96): string {
   return `${t.slice(0, max - 1)}…`;
 }
 
+function shortAddress(value?: string): string {
+  if (!value || !value.startsWith("0x") || value.length < 10) return "N/A";
+  return `${value.slice(0, 6)}...${value.slice(-4)}`;
+}
+
 /** Minimal glass-style plate so the artwork stays the hero. */
 export function buildSignalArtOverlay(
   titleXml: string,
   subtitleXml: string,
-  isoXml: string
+  isoXml: string,
+  identityXml: string,
+  registryXml: string
 ): string {
   return `
 <g id="signalmint-plate" aria-label="Signal metadata">
@@ -63,11 +70,13 @@ export function buildSignalArtOverlay(
       <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#000000" flood-opacity="0.55"/>
     </filter>
   </defs>
-  <rect x="0" y="560" width="1200" height="640" fill="url(#sm-plate-fade)"/>
-  <rect x="40" y="820" width="1120" height="320" rx="32" fill="rgba(3,7,18,0.88)" stroke="rgba(255,255,255,0.22)" stroke-width="2"/>
+  <rect x="0" y="520" width="1200" height="680" fill="url(#sm-plate-fade)"/>
+  <rect x="40" y="780" width="1120" height="360" rx="32" fill="rgba(3,7,18,0.88)" stroke="rgba(255,255,255,0.22)" stroke-width="2"/>
   <text x="600" y="940" text-anchor="middle" fill="#ffffff" font-size="56" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-weight="800" letter-spacing="-0.02em" filter="url(#sm-text-legible)">${titleXml}</text>
   <text x="600" y="1015" text-anchor="middle" fill="#f1f5f9" font-size="28" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-weight="600" filter="url(#sm-text-legible)">${subtitleXml}</text>
-  <text x="600" y="1085" text-anchor="middle" fill="#cbd5e1" font-size="20" font-family="ui-monospace, monospace" font-weight="500" letter-spacing="0.03em" filter="url(#sm-text-legible)">${isoXml}</text>
+  <text x="600" y="1060" text-anchor="middle" fill="#dbeafe" font-size="21" font-family="ui-monospace, monospace" font-weight="600" letter-spacing="0.02em" filter="url(#sm-text-legible)">Agent: ${identityXml}</text>
+  <text x="600" y="1096" text-anchor="middle" fill="#c7d2fe" font-size="20" font-family="ui-monospace, monospace" font-weight="600" letter-spacing="0.02em" filter="url(#sm-text-legible)">Registry: ${registryXml}</text>
+  <text x="600" y="1128" text-anchor="middle" fill="#cbd5e1" font-size="17" font-family="ui-monospace, monospace" font-weight="500" letter-spacing="0.03em" filter="url(#sm-text-legible)">${isoXml}</text>
 </g>`;
 }
 
@@ -145,11 +154,15 @@ export function writeSignalArtToFile(
   const subtitle = truncateSignalSubtitle(
     `${condition?.metric ?? "SIGNAL"} ${condition?.operator ?? ""} ${condition?.threshold ?? "—"} · observed ${condition?.currentValue ?? "—"} · ${confidencePct}% conf`
   );
+  const identityLine = shortAddress(process.env.AGENT_ADDRESS);
+  const registryLine = shortAddress(process.env.ERC8004_IDENTITY_REGISTRY);
 
   const overlay = buildSignalArtOverlay(
     escapeXml(nftName),
     escapeXml(subtitle),
-    escapeXml(new Date().toISOString())
+    escapeXml(new Date().toISOString()),
+    escapeXml(identityLine),
+    escapeXml(registryLine)
   );
 
   const combined = baseSvg.replace(/<\/svg>\s*$/i, `${overlay}</svg>`);

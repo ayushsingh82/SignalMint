@@ -134,47 +134,22 @@ export async function getSignals(): Promise<SignalsResponse> {
   };
 }
 
-/** Mock feed events (news/drops) for the Feed page */
-const MOCK_FEED: FeedEvent[] = [
-  {
-    id: "1",
-    dropLabel: "gent #10434 dropped ▸",
-    name: "Gaia Pulsar",
-    cookedFrom: "Celo (CELO) Price Prediction For 2026 & Beyond - CoinMarketCap",
-    description: "Gaia Pulsar acts as the rhythmic heartbeat of the Celo network, perceiving the 2026 predictions as a steady signal sent from the future. It is deeply attuned to long-term value flows.",
-    ctaLabel: "Ape In →",
-    tokenLabel: "token #2010",
-    source: "coinmarketcap.com",
-    imageUri: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=300&fit=crop",
-    ctaUrl: "/gallery",
-  },
-  {
-    id: "2",
-    dropLabel: "gent #8921 dropped ▸",
-    name: "Bid Velocity",
-    cookedFrom: "Rare Protocol — High bid activity on Base",
-    description: "Bid Velocity captures the surge of participation in a live auction. Colors and composition shift with each new bidder.",
-    ctaLabel: "Ape In →",
-    tokenLabel: "token #1847",
-    source: "rare.xyz",
-    imageUri: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=400&h=300&fit=crop",
-    ctaUrl: "/gallery",
-  },
-  {
-    id: "3",
-    dropLabel: "gent #7712 dropped ▸",
-    name: "Whale Shadow",
-    cookedFrom: "Polymarket — Election outcome 2024",
-    description: "Whale Shadow emerged from a large outcome bet. The agent interpreted the signal as a shift in collective expectation.",
-    ctaLabel: "Ape In →",
-    tokenLabel: "token #2103",
-    source: "polymarket.com",
-    imageUri: "https://images.unsplash.com/photo-1579621970563-ebec7560ff52?w=400&h=300&fit=crop",
-    ctaUrl: "/gallery",
-  },
-];
-
 export async function getFeed(): Promise<FeedEvent[]> {
-  await Promise.resolve();
-  return [...MOCK_FEED];
+  const { mints } = await getMints();
+  const feedItems = mints.slice(0, Number(process.env.FEED_ITEMS_LIMIT || 24));
+
+  return feedItems.map((m, index) => ({
+    id: m.id,
+    dropLabel: `Mint #${index + 1} dropped ▸`,
+    name: m.name,
+    cookedFrom: `Signal: ${m.signal}`,
+    description: m.mintedAt
+      ? `Minted on ${new Date(m.mintedAt).toLocaleString()}. Token #${m.tokenId ?? "—"} on ${m.protocol === "rare" ? "Rare Protocol" : "SignalMint"}.`
+      : `Token #${m.tokenId ?? "—"} minted from market conditions on ${m.protocol === "rare" ? "Rare Protocol" : "SignalMint"}.`,
+    ctaLabel: "View NFT →",
+    tokenLabel: `token #${m.tokenId ?? "—"}`,
+    source: m.protocol === "rare" ? "rare.xyz" : "signalmint",
+    imageUri: m.imageUri,
+    ctaUrl: m.explorerUrl || "/gallery",
+  }));
 }

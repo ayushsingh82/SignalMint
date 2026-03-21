@@ -1,17 +1,32 @@
 import { getMints } from "@/lib/data";
-import type { MintStatus } from "@/lib/types";
+import Link from "next/link";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Gallery — SignalMint",
   description: "Minted NFTs from the SignalMint agent.",
 };
 
-function statusLabel(s: MintStatus): string {
-  return s === "minted" ? "Minted" : s === "auction" ? "Auction" : "Pending";
-}
+type GalleryPageProps = {
+  searchParams?: Promise<{ page?: string }> | { page?: string };
+};
 
-export default async function GalleryPage() {
+export default async function GalleryPage({ searchParams }: GalleryPageProps) {
   const { mints, total } = await getMints();
+  const resolvedParams =
+    searchParams && typeof (searchParams as Promise<{ page?: string }>).then === "function"
+      ? await (searchParams as Promise<{ page?: string }>)
+      : ((searchParams as { page?: string } | undefined) ?? {});
+  const requestedPage = Number(resolvedParams.page || "1");
+  const pageSize = 16; // 4 rows × 4 cards on desktop
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const currentPage = Number.isFinite(requestedPage)
+    ? Math.min(Math.max(1, Math.trunc(requestedPage)), totalPages)
+    : 1;
+  const start = (currentPage - 1) * pageSize;
+  const pagedMints = mints.slice(start, start + pageSize);
+  const envIdentityId = process.env.ERC8004_AGENT_ID?.trim();
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
@@ -20,12 +35,11 @@ export default async function GalleryPage() {
           Gallery
         </h1>
         <p className="mt-4 text-lg text-[var(--brand-primaryText)]/90">
-          NFTs minted by the <span className="text-[var(--brand-accentOnBlue)]">SignalMint</span> agent. Art shaped by market signals.
+          NFTs minted by the <span className="text-[var(--brand-accentOnBlue)]">SignalMint</span> agent.
         </p>
 
         <p className="mt-2 text-sm text-[var(--brand-primaryText)]/70">
-          {total} Rare mint{total !== 1 ? "s" : ""} (newest first)
-          {mints[0]?.protocol === "rare" ? ", artwork from on-chain metadata (IPFS)" : ""}
+          {total} mint{total !== 1 ? "s" : ""} (newest first) · Page {currentPage} of {totalPages}
         </p>
 
         {total === 0 ? (
@@ -40,7 +54,7 @@ export default async function GalleryPage() {
           </div>
         ) : (
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {mints.map((item) => (
+            {pagedMints.map((item) => (
               <div
                 key={item.id}
                 className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md transition-all hover:border-[var(--brand-accentOnBlue)]/50 hover:shadow-[0_0_30px_rgba(173,255,1,0.15)] group"
@@ -70,34 +84,14 @@ export default async function GalleryPage() {
                   {item.tokenId ? (
                     <p className="mt-1 text-xs font-mono text-zinc-500">Token #{item.tokenId}</p>
                   ) : null}
-                  <p className="mt-1 text-xs text-zinc-300">
-                    Signal: <span className="text-[var(--brand-accentOnBlue)]">{item.signal}</span>
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs">
-                    {item.explorerUrl ? (
-                      <a
-                        href={item.explorerUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[var(--brand-accentOnBlue)] underline-offset-2 hover:underline"
-                      >
-                        NFT on explorer
-                      </a>
-                    ) : null}
-                    {item.txExplorerUrl ? (
-                      <a
-                        href={item.txExplorerUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-zinc-400 underline-offset-2 hover:text-white hover:underline"
-                      >
-                        Mint tx
-                      </a>
-                    ) : null}
-                  </div>
+                  {item.identityId || envIdentityId ? (
+                    <p className="mt-2 rounded-md border border-white/15 bg-black/35 px-2 py-1 text-[10px] font-mono text-zinc-300">
+                      ERC8004 Identity #{item.identityId ?? envIdentityId}
+                    </p>
+                  ) : null}
                   <div className="mt-4 flex items-center justify-between">
                     <p className="text-xs font-bold uppercase tracking-wider text-[var(--brand-accentOnBlue)]">
-                      {item.protocol === "rare" ? "Rare" : statusLabel(item.status)}
+                      Minted
                     </p>
                     <span className="flex h-2 w-2 rounded-full bg-[var(--brand-accentOnBlue)] shadow-[0_0_8px_rgba(173,255,1,1)]" />
                   </div>
@@ -106,6 +100,43 @@ export default async function GalleryPage() {
             ))}
           </div>
         )}
+        {totalPages > 1 ? (
+          <div className="mt-10 flex items-center justify-center gap-2 text-sm">
+            <Link
+              href={`/gallery?page=${Math.max(1, currentPage - 1)}`}
+              className={`rounded-md border px-3 py-1.5 ${
+                currentPage <= 1
+                  ? "pointer-events-none border-white/10 text-zinc-500"
+                  : "border-white/20 text-white hover:border-[var(--brand-accentOnBlue)]"
+              }`}
+            >
+              Prev
+            </Link>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <Link
+                key={p}
+                href={`/gallery?page=${p}`}
+                className={`rounded-md border px-3 py-1.5 ${
+                  p === currentPage
+                    ? "border-[var(--brand-accentOnBlue)] bg-[var(--brand-accentOnBlue)]/20 text-[var(--brand-accentOnBlue)]"
+                    : "border-white/20 text-white hover:border-[var(--brand-accentOnBlue)]"
+                }`}
+              >
+                {p}
+              </Link>
+            ))}
+            <Link
+              href={`/gallery?page=${Math.min(totalPages, currentPage + 1)}`}
+              className={`rounded-md border px-3 py-1.5 ${
+                currentPage >= totalPages
+                  ? "pointer-events-none border-white/10 text-zinc-500"
+                  : "border-white/20 text-white hover:border-[var(--brand-accentOnBlue)]"
+              }`}
+            >
+              Next
+            </Link>
+          </div>
+        ) : null}
       </section>
     </div>
   );
