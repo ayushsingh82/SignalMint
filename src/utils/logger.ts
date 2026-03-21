@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../shared/config';
-import { AgentLogEntry, AgentLog } from '../shared/types';
+import { AgentLogEntry, AgentLog, Signal, Decision, Execution } from '../shared/types';
 
 /**
  * Comprehensive agent logger for structured execution tracking
@@ -46,7 +46,7 @@ export class Logger {
   log(
     agentName: string,
     actionType: string,
-    data: Record<string, any>,
+    data: unknown,
     result: 'success' | 'failed' = 'success',
     error?: string
   ): void {
@@ -62,8 +62,6 @@ export class Logger {
     this.entries.push(entry);
 
     const statusEmoji = result === 'success' ? '✓' : '✗';
-    const logLevel = result === 'success' ? 'info' : 'error';
-    
     console.log(
       `[${agentName}] ${statusEmoji} ${actionType}: ${result}`,
       data
@@ -74,7 +72,7 @@ export class Logger {
     }
   }
 
-  recordSignal(signal: any): void {
+  recordSignal(signal: Signal): void {
     if (!this.agentLogData.signals) this.agentLogData.signals = [];
     this.agentLogData.signals.push(signal);
     if (this.agentLogData.summary) {
@@ -82,7 +80,7 @@ export class Logger {
     }
   }
 
-  recordDecision(decision: any): void {
+  recordDecision(decision: Decision): void {
     if (!this.agentLogData.decisions) this.agentLogData.decisions = [];
     this.agentLogData.decisions.push(decision);
     if (this.agentLogData.summary) {
@@ -90,7 +88,7 @@ export class Logger {
     }
   }
 
-  recordExecution(execution: any, success: boolean = true): void {
+  recordExecution(execution: Execution, success: boolean = true): void {
     if (!this.agentLogData.executions) this.agentLogData.executions = [];
     this.agentLogData.executions.push(execution);
     if (this.agentLogData.summary) {
@@ -103,7 +101,7 @@ export class Logger {
     }
   }
 
-  recordVerification(verification: any): void {
+  recordVerification(verification: unknown): void {
     if (!this.agentLogData.verifications) this.agentLogData.verifications = [];
     this.agentLogData.verifications.push(verification);
     if (this.agentLogData.summary) {

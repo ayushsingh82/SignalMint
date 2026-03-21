@@ -6,7 +6,7 @@ import { rareIntegration } from '../protocols/rare';
 import { uniswapIntegration } from '../protocols/uniswap';
 import { config } from '../shared/config';
 import { logger } from '../utils/logger';
-import { RetryableExecutor, Validator } from '../utils/helpers';
+import { RetryableExecutor } from '../utils/helpers';
 
 /**
  * Executor Agent: Executes autonomous actions
@@ -82,6 +82,7 @@ export class ExecutorAgent {
           };
 
           logger.recordExecution(blockedExecution, false);
+          this.executionLog.push(blockedExecution);
           await messageBus.sendMessage({
             from: 'ExecutorAgent',
             to: 'VerifierAgent',
@@ -102,6 +103,7 @@ export class ExecutorAgent {
         }, 'success');
 
         logger.recordExecution(execution, execution.result === 'success');
+        this.executionLog.push(execution);
 
         // Send to VerifierAgent
         await messageBus.sendMessage({
