@@ -188,23 +188,6 @@ console.log(`Swap tx: ${receipt.transactionHash}`);
 - **Multi-chain**: Ethereum, Polygon, Arbitrum, Base, and more
 - **Permit2**: Support for signature-based approvals (no prior tx needed)
 
----
-
-## 🟡 Locus (Agent Payments)
-
-### Overview
-Locus provides wallet management and spend control for autonomous agents.
-
-### Status
-⚠️ Documentation currently unavailable (docs.locus.fi inaccessible)
-
-### Planned Integration
-- Agent wallet funding mechanism
-- Transaction fee coverage
-- Spend limits per action type
-
----
-
 ## 🟢 Zyfai (Yield Accounts)
 
 ### Overview
@@ -478,74 +461,6 @@ await reputationRegistry.giveFeedback(
 
 ---
 
-## 🟡 ENS (Ethereum Name Service)
-
-### Overview
-ENS provides human-readable names (signalmint.eth) linked to Ethereum addresses and metadata.
-
-### Setup
-```bash
-npm install @ensdomains/ensjs
-```
-
-### Link ENS to Agent
-```typescript
-import { createPublicClient, createWalletClient } from 'viem';
-import { getEnsAddress } from '@ensdomains/ensjs';
-
-const ensName = 'signalmint.eth';
-const agentWallet = '0x...';
-
-// Resolve ENS to address
-const address = await getEnsAddress({ name: ensName });
-
-// Or set ENS resolver to point to agent wallet (if you own the domain)
-// This creates a human-readable identity for the agent
-```
-
-### Integration Points
-- **Optional**: Register signalmint.eth for agent branding
-- **Identity**: Optional complement to ERC-8004 identity
-- **Documentation**: Link ENS name in REA DME and agent.json
-
----
-
-## 🟠 Bankr (Optional: Self-Sustaining Agents)
-
-### Overview
-Bankr enables agents to fund themselves by launching a token and capturing trading fees from that token's trades.
-
-### Installation
-```bash
-npm install -g @bankr/cli
-```
-
-### Quick Start
-```bash
-# 1. Create agent with built-in wallet
-bankr login
-
-# 2. Launch a fair-launch token for the agent
-bankr launch --name SMINT --symbol SMINT
-
-# 3. Track earnings (trading fees)
-bankr fees
-
-# 4. Use earnings to fund compute
-# Earnings auto-flow back to cover operational costs
-```
-
-### Integration
-SignalMint **can optionally**:
-- Launch $SMINT token on Base
-- Earn trading fees when users trade $SMINT
-- Use fees to cover gas, API calls, Uniswap swap fees
-- Become self-sustaining off-chain
-
-This is a **bonus** for extending SignalMint's autonomy and is not required for the core loop.
-
----
-
 ## Summary: Protocol Integration Flow
 
 ```
@@ -608,5 +523,3 @@ OpenServ Coordination (Optional)
 - Zyfai: https://docs.zyf.ai
 - OpenServ: https://docs.openserv.ai
 - ERC-8004: https://eips.ethereum.org/EIPS/eip-8004
-- ENS: https://docs.ens.domains
-- Bankr: https://docs.bankr.bot

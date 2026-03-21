@@ -4,7 +4,7 @@
 
 Detects market signals → Makes autonomous decisions → Executes real trades & mints → Verifies on-chain → Logs permanently.
 
-Integrates: **Rare Protocol**, **Uniswap V4**, **Filecoin/IPFS**, **ERC-8004**, **Zyfai**, **OpenServ**, **ENS**.
+Integrates: **Rare Protocol**, **Uniswap V4**, **Filecoin/IPFS**, **ERC-8004**, **Zyfai**, **OpenServ**.
 
 Market intelligence can be enriched with third-party feeds: **CoinMarketCap** (price/market metrics), **NewsAPI** (headline sentiment), and **Fear & Greed Index**.
 
@@ -30,7 +30,7 @@ Market intelligence can be enriched with third-party feeds: **CoinMarketCap** (p
 - Node.js 22+
 - TypeScript
 - Wallet with testnet ETH (Sepolia or Base)
-- Required API keys: Uniswap, Web3.storage, Bankr (optional)
+- Required API keys: Uniswap, Web3.storage
 
 ### Clone & Setup
 ```bash
@@ -87,13 +87,11 @@ npm run agent:run
 - Waits for confirmation (12 blocks)
 - Records decisions & executions in agent_log.json
 - Uploads logs to Filecoin (Web3.storage)
-- Submits reputation feedback to ERC-8004
+- Uses ERC-8004 identity registration for provenance
 
 ### 5. **Storage & Identity**
 - **Filecoin/IPFS**: Persistent agent_log.json with CID
-- **ERC-8004**: Agent identity registration + reputation scoring
-- **ENS**: Optional human-readable agent name
-- **Bankr**: Optional token launch for self-sustainability
+- **ERC-8004**: Agent identity registration
 
 ---
 
@@ -104,11 +102,9 @@ npm run agent:run
 | **Rare Protocol** | NFT minting & auctions | ✅ Core |
 | **Uniswap V4** | Real swaps with MEV protection | ✅ Core |
 | **Filecoin/IPFS** | Permanent agent log storage | ✅ Core |
-| **ERC-8004** | Agent identity & reputation | ✅ Core |
+| **ERC-8004** | Agent identity | ✅ Core |
 | **Zyfai** | Yield accounts for gas funding | ⏳ Integration |
 | **OpenServ** | Multi-agent coordination | ⏳ Integration |
-| **ENS** | Domain names (optional) | ⏳ Optional |
-| **Bankr** | Token launch & self-funding | ⏳ Optional |
 
 See [PROTOCOLS.md](./PROTOCOLS.md) for detailed integration guide.
 
@@ -174,7 +170,7 @@ Each cycle produces a complete `agent_log.json`:
 ✅ ERC-8004 on-chain identity  
 ✅ Verifiable mints & swaps  
 ✅ DevSpot agent manifest  
-✅ On-chain reputation  
+✅ On-chain identity linkage  
 ✅ Real transaction links  
 
 See [PROTOCOL_LABS_TRACK_CHECKLIST.md](./PROTOCOL_LABS_TRACK_CHECKLIST.md) for full requirements.
@@ -195,7 +191,7 @@ Signal Detection (Scout)
          ↓
    Storage (Filecoin/IPFS)
          ↓
-Identity (ERC-8004) + Reputation
+Identity (ERC-8004)
          ↓
    [LOOP REPEATS]
 ```
@@ -270,8 +266,6 @@ npm run agent:run
 - **Filecoin**: https://docs.filecoin.io
 - **Uniswap**: https://docs.uniswap.org
 - **ERC-8004**: https://eips.ethereum.org/EIPS/eip-8004
-- **ENS**: https://docs.ens.domains
-- **Bankr**: https://docs.bankr.bot
 - **Zyfai**: https://docs.zyf.ai
 - **OpenServ**: https://docs.openserv.ai
 

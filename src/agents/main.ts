@@ -47,7 +47,6 @@ async function startAutonomousAgent(): Promise<void> {
     const { zyfaiIntegration } = await import('../protocols/zyfai');
     const { openServIntegration } = await import('../protocols/openserv');
     const { erc8004Integration } = await import('../protocols/erc8004');
-    const { locusIntegration } = await import('../protocols/locus');
 
     try {
       await zyfaiIntegration.getOrCreateWallet();
@@ -65,12 +64,6 @@ async function startAutonomousAgent(): Promise<void> {
       await erc8004Integration.registerAgent('ipfs://QmAgentMetadata');
     } catch (error) {
       logger.log('Main', 'erc8004_bootstrap', {}, 'failed', String(error));
-    }
-
-    try {
-      await locusIntegration.setSpendLimit('0.5 ETH');
-    } catch (error) {
-      logger.log('Main', 'locus_bootstrap', {}, 'failed', String(error));
     }
 
     isRunning = true;
