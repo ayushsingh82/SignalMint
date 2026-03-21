@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <defs>
+    <linearGradient id="mj-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#022c22"/>
+      <stop offset="50%" stop-color="#064e3b"/>
+      <stop offset="100%" stop-color="#042f2e"/>
+    </linearGradient>
+    <radialGradient id="mj-glow" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#34d399" stop-opacity="0.45"/>
+      <stop offset="45%" stop-color="#059669" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#022c22" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="mj-mist" cx="85%" cy="75%" r="50%">
+      <stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#022c22" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="mj-blur" x="-12%" y="-12%" width="124%" height="124%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="38"/>
+    </filter>
+    <linearGradient id="mj-line" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#a7f3d0" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" fill="url(#mj-bg)"/>
+  <ellipse cx="480" cy="420" rx="520" ry="440" fill="url(#mj-glow)" filter="url(#mj-blur)"/>
+  <ellipse cx="980" cy="880" rx="420" ry="360" fill="url(#mj-mist)" filter="url(#mj-blur)"/>
+  <path fill="none" stroke="url(#mj-line)" stroke-width="2" d="M0 520 Q400 480 800 520 T1200 500"/>
+  <path fill="none" stroke="#34d399" stroke-width="1" opacity="0.1" d="M0 680 Q300 640 600 680 T1200 660"/>
+
+<g id="signalmint-plate" aria-label="Signal metadata">
+  <defs>
+    <linearGradient id="sm-plate-fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="35%" stop-color="#000000" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.88"/>
+    </linearGradient>
+    <filter id="sm-text-legible" x="-5%" y="-15%" width="110%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.9"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#000000" flood-opacity="0.55"/>
+    </filter>
+  </defs>
+  <rect x="0" y="560" width="1200" height="640" fill="url(#sm-plate-fade)"/>
+  <rect x="40" y="820" width="1120" height="320" rx="32" fill="rgba(3,7,18,0.88)" stroke="rgba(255,255,255,0.22)" stroke-width="2"/>
+  <text x="600" y="940" text-anchor="middle" fill="#ffffff" font-size="56" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-weight="800" letter-spacing="-0.02em" filter="url(#sm-text-legible)">Market Signal #1774080477</text>
+  <text x="600" y="1015" text-anchor="middle" fill="#f1f5f9" font-size="28" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-weight="600" filter="url(#sm-text-legible)">ETH_PRICE &gt; 2100 · observed 2155.5101989259856 · 49.9% conf</text>
+  <text x="600" y="1085" text-anchor="middle" fill="#cbd5e1" font-size="20" font-family="ui-monospace, monospace" font-weight="500" letter-spacing="0.03em" filter="url(#sm-text-legible)">2026-03-21T08:07:57.737Z</text>
+</g></svg>

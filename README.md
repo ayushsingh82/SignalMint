@@ -37,6 +37,43 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ---
 
+## Run the autonomous agent
+
+```bash
+npm install
+npm run agent:build
+npm run agent:dev
+```
+
+The current runtime path is wired to real integrations:
+
+- Rare Protocol CLI mint flow on Sepolia/Base Sepolia config
+- Uniswap Trading API quote/swap path
+- OpenServ via `@openserv-labs/client` (workflow bootstrap)
+- Zyfai via `@zyfai/sdk` (smart wallet + session key)
+
+### Required environment
+
+Copy [.env.example](.env.example) to `.env` and set at minimum:
+
+- `AGENT_PRIVATE_KEY`
+- `AGENT_ADDRESS`
+- `RARE_CHAIN`, `RARE_RPC_URL`, `RARE_CONTRACT_ADDRESS`
+- `UNISWAP_API_KEY`
+- `OPENSERV_API_KEY`
+- `ZYFAI_API_KEY`
+
+### Zyfai EOA requirement
+
+Zyfai requires an EOA for `userAddress`.
+
+- If your existing agent wallet is a normal EOA, set:
+	- `ZYFAI_PRIVATE_KEY=<same as AGENT_PRIVATE_KEY>`
+	- `ZYFAI_USER_EOA=<same as AGENT_ADDRESS>`
+This keeps the rest of the autonomous loop running even if optional integrations fail at bootstrap.
+
+---
+
 ## Links
 
 | Resource | Purpose |

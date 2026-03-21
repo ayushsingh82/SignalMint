@@ -1,0 +1,67 @@
+{
+  "version": "1.0.0",
+  "cycleId": "2026-03-21T08:08:21.645Z",
+  "startTime": "2026-03-21T08:08:21.645Z",
+  "endTime": "2026-03-21T08:10:04.516Z",
+  "signals": [
+    {
+      "id": "signal_1774080517865",
+      "type": "ETH_PRICE_SPIKE",
+      "source": "cmc+uniswap+news+polymarket",
+      "value": 2155.5101989259856,
+      "threshold": 2100,
+      "confidence": 0.49945,
+      "timestamp": "2026-03-21T08:08:37.865Z",
+      "metadata": {
+        "priceHistoryLength": 1,
+        "priceAverage": 2155.5101989259856,
+        "priceChange": 0,
+        "cmcPrice": 2155.5101989259856,
+        "cmc24hChange": 0.33820152,
+        "newsSentiment": 0.6,
+        "newsArticleCount": 20,
+        "polymarketSentiment": 0.17225000000000001,
+        "polymarketMarketCount": 4,
+        "fearGreedValue": 12,
+        "fearGreedLabel": "Extreme Fear"
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "id": "decision_1774080517865",
+      "signalId": "signal_1774080517865",
+      "type": "MINT",
+      "confidence": 0.49945,
+      "reasoning": "Signal condition passed: ETH price 2155.5101989259856 > threshold 2100 and confidence 49.9% >= 45%. MINT decision made.",
+      "estimatedCost": "0.05",
+      "conditionCheck": {
+        "metric": "ETH_PRICE",
+        "operator": ">",
+        "currentValue": 2155.5101989259856,
+        "threshold": 2100,
+        "passed": true
+      },
+      "signalSnapshot": {
+        "type": "ETH_PRICE_SPIKE",
+        "source": "cmc+uniswap+news+polymarket",
+        "value": 2155.5101989259856,
+        "threshold": 2100,
+        "detectedAt": "2026-03-21T08:08:37.865Z"
+      },
+      "timestamp": "2026-03-21T08:08:37.866Z"
+    }
+  ],
+  "executions": [],
+  "verifications": [],
+  "summary": {
+    "signalsDetected": 1,
+    "decisionsGenerated": 1,
+    "executionsAttempted": 0,
+    "executionsSucceeded": 0,
+    "executionsFailed": 0,
+    "verificationsPass": 0,
+    "totalGasUsed": 0,
+    "totalCostETH": 0.00463
+  }
+}
