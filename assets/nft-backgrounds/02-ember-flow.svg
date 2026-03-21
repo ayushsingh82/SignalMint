@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <defs>
+    <linearGradient id="ef-bg" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1c0a0a"/>
+      <stop offset="40%" stop-color="#431407"/>
+      <stop offset="100%" stop-color="#0c0a09"/>
+    </linearGradient>
+    <radialGradient id="ef-core" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#fb923c" stop-opacity="0.7"/>
+      <stop offset="35%" stop-color="#ea580c" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#1c0a0a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="ef-edge" cx="15%" cy="85%" r="50%">
+      <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#1c0a0a" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="ef-blur" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="38"/>
+    </filter>
+    <linearGradient id="ef-streak" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f97316" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#fdba74" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#f97316" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" fill="url(#ef-bg)"/>
+  <ellipse cx="600" cy="480" rx="560" ry="500" fill="url(#ef-core)" filter="url(#ef-blur)"/>
+  <ellipse cx="200" cy="980" rx="400" ry="300" fill="url(#ef-edge)" filter="url(#ef-blur)"/>
+  <rect x="0" y="520" width="1200" height="8" fill="url(#ef-streak)" transform="rotate(-8 600 600)"/>
+  <rect x="0" y="680" width="1200" height="4" fill="url(#ef-streak)" opacity="0.6" transform="rotate(4 600 600)"/>
+</svg>

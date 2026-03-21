@@ -1,15 +1,17 @@
 /**
  * Data layer for SignalMint.
- * Replace mock implementations with Rare Protocol / chain RPC or subgraph when ready.
+ * Gallery: Rare Protocol mints from agent logs (latest first) + IPFS image via metadata.
  */
 
 import type { Mint, MarketSignal, MintsResponse, SignalsResponse, FeedEvent } from "./types";
+import { getRareMintsFromAgentLogs } from "./rare-mints";
 
 // Images: trading, prediction markets, sports, news (Unsplash, free to use)
 // Trading/charts: 1579621970563-ebec7560ff52, 1590283603385-17ffb3a7f29f | Sports: 1461896836934-5f5655182d4e, 1574629810360-7efbbe195018 | News: 1495020689067-958852a7765e, 1504711434969-e33886168f5c
 const MOCK_MINTS: Mint[] = [
   {
     id: "1",
+    protocol: "mock",
     name: "Chaos Index",
     signal: "High bids",
     status: "minted",
@@ -91,15 +93,26 @@ const MOCK_MINTS: Mint[] = [
 ];
 
 /**
- * Fetch mints for the gallery.
- * TODO: Replace with Rare Protocol subgraph or contract reads (e.g. tokenURI, tokenByIndex).
+ * Fetch mints for the gallery: only Rare mints from `logs/agent_log_*.json`, newest first.
+ * Resolves token metadata JSON from IPFS (or gatewayUrl in logs) to set `imageUri`.
+ * Set GALLERY_USE_MOCK_MINTS=true to use placeholder Unsplash tiles instead.
  */
 export async function getMints(): Promise<MintsResponse> {
-  // Simulate async (e.g. RPC/subgraph)
-  await Promise.resolve();
+  if (process.env.GALLERY_USE_MOCK_MINTS === "true") {
+    await Promise.resolve();
+    return {
+      mints: MOCK_MINTS.map((m) => ({ ...m })),
+      total: MOCK_MINTS.length,
+    };
+  }
+
+  const mints = await getRareMintsFromAgentLogs({
+    limit: Number(process.env.GALLERY_RARE_MINT_LIMIT || 48),
+  });
+
   return {
-    mints: [...MOCK_MINTS],
-    total: MOCK_MINTS.length,
+    mints,
+    total: mints.length,
   };
 }
 

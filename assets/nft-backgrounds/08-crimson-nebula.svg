@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <defs>
+    <linearGradient id="cn-bg" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1a0505"/>
+      <stop offset="45%" stop-color="#450a0a"/>
+      <stop offset="100%" stop-color="#0c0a0a"/>
+    </linearGradient>
+    <radialGradient id="cn-core" cx="55%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.55"/>
+      <stop offset="40%" stop-color="#be123c" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#1a0505" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cn-violet" cx="15%" cy="65%" r="55%">
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#1a0505" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cn-spark" cx="90%" cy="20%" r="35%">
+      <stop offset="0%" stop-color="#fda4af" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#1a0505" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="cn-blur" x="-12%" y="-12%" width="124%" height="124%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="42"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="1200" fill="url(#cn-bg)"/>
+  <ellipse cx="660" cy="450" rx="540" ry="460" fill="url(#cn-core)" filter="url(#cn-blur)"/>
+  <ellipse cx="180" cy="780" rx="380" ry="420" fill="url(#cn-violet)" filter="url(#cn-blur)"/>
+  <ellipse cx="1080" cy="240" rx="280" ry="220" fill="url(#cn-spark)" filter="url(#cn-blur)"/>
+  <circle cx="600" cy="600" r="320" fill="none" stroke="#f43f5e" stroke-opacity="0.07" stroke-width="1"/>
+</svg>

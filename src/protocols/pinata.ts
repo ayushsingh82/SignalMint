@@ -47,7 +47,7 @@ export class PinataClient {
             logger.log('PinataClient', 'uploadJson', { name, cid }, 'success');
             return { cid, uri };
         } catch (error: any) {
-            const errorMsg = error.response?.data?.error || error.message;
+            const errorMsg = this.extractErrorMessage(error);
             logger.log('PinataClient', 'uploadJson', { name }, 'failed', errorMsg);
             throw new Error(`Pinata JSON upload failed: ${errorMsg}`);
         }
@@ -94,7 +94,7 @@ export class PinataClient {
             logger.log('PinataClient', 'uploadFile', { fileName, cid }, 'success');
             return { cid, uri };
         } catch (error: any) {
-            const errorMsg = error.response?.data?.error || error.message;
+            const errorMsg = this.extractErrorMessage(error);
             logger.log('PinataClient', 'uploadFile', { filePath }, 'failed', errorMsg);
             throw new Error(`Pinata file upload failed: ${errorMsg}`);
         }
@@ -117,6 +117,33 @@ export class PinataClient {
         }
 
         return headers;
+    }
+
+    private extractErrorMessage(error: any): string {
+        const responseData = error?.response?.data;
+        if (typeof responseData === 'string') {
+            return responseData;
+        }
+
+        const details = responseData?.error ?? responseData;
+        if (typeof details === 'string') {
+            return details;
+        }
+
+        const reason = details?.reason;
+        const message = details?.details || details?.message;
+
+        if (reason && message) {
+            return `${reason}: ${message}`;
+        }
+        if (reason) {
+            return String(reason);
+        }
+        if (message) {
+            return String(message);
+        }
+
+        return error?.message || 'Unknown Pinata error';
     }
 }
 

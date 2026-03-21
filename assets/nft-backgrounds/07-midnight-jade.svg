@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <defs>
+    <linearGradient id="mj-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#022c22"/>
+      <stop offset="50%" stop-color="#064e3b"/>
+      <stop offset="100%" stop-color="#042f2e"/>
+    </linearGradient>
+    <radialGradient id="mj-glow" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#34d399" stop-opacity="0.45"/>
+      <stop offset="45%" stop-color="#059669" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#022c22" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="mj-mist" cx="85%" cy="75%" r="50%">
+      <stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#022c22" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="mj-blur" x="-12%" y="-12%" width="124%" height="124%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="38"/>
+    </filter>
+    <linearGradient id="mj-line" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#a7f3d0" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" fill="url(#mj-bg)"/>
+  <ellipse cx="480" cy="420" rx="520" ry="440" fill="url(#mj-glow)" filter="url(#mj-blur)"/>
+  <ellipse cx="980" cy="880" rx="420" ry="360" fill="url(#mj-mist)" filter="url(#mj-blur)"/>
+  <path fill="none" stroke="url(#mj-line)" stroke-width="2" d="M0 520 Q400 480 800 520 T1200 500"/>
+  <path fill="none" stroke="#34d399" stroke-width="1" opacity="0.1" d="M0 680 Q300 640 600 680 T1200 660"/>
+</svg>

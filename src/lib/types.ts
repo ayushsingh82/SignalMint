@@ -13,8 +13,16 @@ export interface Mint {
   imageUri?: string;
   /** Token ID on-chain (when known) */
   tokenId?: string;
-  /** Contract or explorer link */
+  /** NFT view on block explorer */
   explorerUrl?: string;
+  /** Mint transaction on block explorer */
+  txExplorerUrl?: string;
+  /** ipfs:// metadata URI or HTTPS gateway to JSON */
+  metadataUri?: string;
+  /** Mint transaction hash */
+  txHash?: string;
+  /** Source of the mint record */
+  protocol?: "rare" | "mock";
   /** Block or timestamp when minted */
   mintedAt?: string;
 }

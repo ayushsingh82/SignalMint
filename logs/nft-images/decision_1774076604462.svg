@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#121826"/>
+      <stop offset="100%" stop-color="#0b4a6f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" fill="url(#bg)"/>
+  <text x="80" y="160" fill="#f8fafc" font-size="56" font-family="monospace">Market Signal #1774076604</text>
+  <text x="80" y="260" fill="#cbd5e1" font-size="36" font-family="monospace">Decision: decision_1774076604462</text>
+  <text x="80" y="330" fill="#cbd5e1" font-size="36" font-family="monospace">Confidence: 56.12%</text>
+  <text x="80" y="400" fill="#cbd5e1" font-size="36" font-family="monospace">Condition: ETH_PRICE &gt; 2100</text>
+  <text x="80" y="470" fill="#cbd5e1" font-size="36" font-family="monospace">Observed: 2155.1699157640983</text>
+  <text x="80" y="540" fill="#cbd5e1" font-size="36" font-family="monospace">Passed: true</text>
+  <text x="80" y="610" fill="#94a3b8" font-size="28" font-family="monospace">2026-03-21T07:03:24.463Z</text>
+</svg>

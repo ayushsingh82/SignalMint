@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <defs>
+    <linearGradient id="dl-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#020c1b"/>
+      <stop offset="50%" stop-color="#0c4a6e"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+    <radialGradient id="dl-pool" cx="50%" cy="45%" r="70%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.35"/>
+      <stop offset="40%" stop-color="#0369a1" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#020c1b" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="dl-glow" cx="80%" cy="70%" r="40%">
+      <stop offset="0%" stop-color="#7dd3fc" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#020c1b" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="dl-blur" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="42"/>
+    </filter>
+    <linearGradient id="dl-wave" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#bae6fd" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" fill="url(#dl-bg)"/>
+  <ellipse cx="600" cy="540" rx="580" ry="480" fill="url(#dl-pool)" filter="url(#dl-blur)"/>
+  <ellipse cx="960" cy="840" rx="380" ry="320" fill="url(#dl-glow)" filter="url(#dl-blur)"/>
+  <path fill="none" stroke="url(#dl-wave)" stroke-width="3" opacity="0.9" d="M0 720 Q200 680 400 720 T800 700 T1200 730"/>
+  <path fill="none" stroke="#38bdf8" stroke-width="1" opacity="0.12" d="M0 640 Q300 600 600 640 T1200 620"/>
+  <path fill="none" stroke="#7dd3fc" stroke-width="1" opacity="0.1" d="M0 880 Q400 820 800 860 T1200 840"/>
+</svg>

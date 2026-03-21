@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import { Execution, AgentMessage, Decision } from '../shared/types';
 import { messageBus } from '../shared/message';
 import { rareIntegration } from '../protocols/rare';
@@ -7,6 +5,7 @@ import { uniswapIntegration } from '../protocols/uniswap';
 import { config } from '../shared/config';
 import { logger } from '../utils/logger';
 import { RetryableExecutor } from '../utils/helpers';
+import { writeSignalArtToFile } from '../utils/signal-art';
 
 /**
  * Executor Agent: Executes autonomous actions
@@ -240,46 +239,11 @@ export class ExecutorAgent {
     return true;
   }
 
+  /**
+   * Pre-built SVG backgrounds under assets/nft-backgrounds/ (see utils/signal-art.ts).
+   */
   private createSignalArt(decision: Decision, nftName: string): string {
-    const imageDir = path.join(process.cwd(), 'logs', 'nft-images');
-    if (!fs.existsSync(imageDir)) {
-      fs.mkdirSync(imageDir, { recursive: true });
-    }
-
-    const fileName = `${decision.id}.svg`;
-    const filePath = path.join(imageDir, fileName);
-    const condition = decision.conditionCheck;
-    const confidence = (decision.confidence * 100).toFixed(2);
-
-    const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#121826"/>
-      <stop offset="100%" stop-color="#0b4a6f"/>
-    </linearGradient>
-  </defs>
-  <rect width="1200" height="1200" fill="url(#bg)"/>
-  <text x="80" y="160" fill="#f8fafc" font-size="56" font-family="monospace">${this.escapeXml(nftName)}</text>
-  <text x="80" y="260" fill="#cbd5e1" font-size="36" font-family="monospace">Decision: ${this.escapeXml(decision.id)}</text>
-  <text x="80" y="330" fill="#cbd5e1" font-size="36" font-family="monospace">Confidence: ${confidence}%</text>
-  <text x="80" y="400" fill="#cbd5e1" font-size="36" font-family="monospace">Condition: ${this.escapeXml(condition?.metric ?? 'N/A')} ${this.escapeXml(condition?.operator ?? '')} ${condition?.threshold ?? 'N/A'}</text>
-  <text x="80" y="470" fill="#cbd5e1" font-size="36" font-family="monospace">Observed: ${condition?.currentValue ?? 'N/A'}</text>
-  <text x="80" y="540" fill="#cbd5e1" font-size="36" font-family="monospace">Passed: ${String(condition?.passed ?? false)}</text>
-  <text x="80" y="610" fill="#94a3b8" font-size="28" font-family="monospace">${new Date().toISOString()}</text>
-</svg>`;
-
-    fs.writeFileSync(filePath, svg, { encoding: 'utf-8' });
-    return filePath;
-  }
-
-  private escapeXml(input: string): string {
-    return input
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&apos;');
+    return writeSignalArtToFile(decision, nftName, { cwd: process.cwd() });
   }
 
   /**

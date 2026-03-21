@@ -18,6 +18,10 @@ type RareParsedOutput = Record<string, unknown> & {
   uri?: string;
 };
 
+function shellEscape(value: string): string {
+  return `"${value.replace(/(["\\$`])/g, '\\$1')}"`;
+}
+
 /**
  * Rare Protocol CLI Integration for NFT operations
  * Handles minting, auctions, and collection management
@@ -108,7 +112,7 @@ export class RareIntegration {
 
       let cmd = `rare mint --contract ${contractAddress} ` +
         `--name "${name}" --description "${description}" ` +
-        `--image ${imagePath}`;
+        `--image ${shellEscape(imagePath)}`;
 
       // Add attributes
       for (const [key, value] of Object.entries(attributes)) {
