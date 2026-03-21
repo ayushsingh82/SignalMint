@@ -39,6 +39,7 @@ export const config = {
     apiUrl: process.env.ZYFAI_API_URL || 'https://api.zyf.ai',
     privateKey: process.env.ZYFAI_PRIVATE_KEY,
     userEoa: process.env.ZYFAI_USER_EOA,
+    chain: process.env.ZYFAI_CHAIN || 'base',
   },
 
   openserv: {

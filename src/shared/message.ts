@@ -13,6 +13,7 @@ export class MessageBus extends EventEmitter {
     this.messageHistory.push(message);
     
     console.log(`[MessageBus] ${message.from} → ${message.to}: ${message.type}`);
+    void this.forwardToOpenServ(message);
     this.emit(message.type, message);
   }
 
@@ -46,6 +47,20 @@ export class MessageBus extends EventEmitter {
     this.messageQueue = [];
     this.messageHistory = [];
     this.removeAllListeners();
+  }
+
+  private async forwardToOpenServ(message: AgentMessage): Promise<void> {
+    try {
+      const { openServIntegration } = await import('../protocols/openserv');
+      await openServIntegration.sendMessage(
+        message.from,
+        message.to,
+        message.type,
+        message.payload as Record<string, unknown>
+      );
+    } catch {
+      // Keep internal agent communication non-blocking even if OpenServ is unavailable.
+    }
   }
 }
 

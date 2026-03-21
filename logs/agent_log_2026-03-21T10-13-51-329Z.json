@@ -1,0 +1,294 @@
+{
+  "version": "1.0.0",
+  "cycleId": "2026-03-21T10:13:51.329Z",
+  "startTime": "2026-03-21T10:13:51.330Z",
+  "endTime": "2026-03-21T10:16:00.824Z",
+  "signals": [
+    {
+      "id": "signal_1774088060273",
+      "type": "ETH_PRICE_SPIKE",
+      "source": "cmc+uniswap+news+polymarket",
+      "value": 2157.4866514983814,
+      "threshold": 2100,
+      "confidence": 0.4921447368421053,
+      "timestamp": "2026-03-21T10:14:20.273Z",
+      "metadata": {
+        "priceHistoryLength": 1,
+        "priceAverage": 2157.4866514983814,
+        "priceChange": 0,
+        "cmcPrice": 2157.4866514983814,
+        "cmc24hChange": 1.12788121,
+        "newsSentiment": 0.5526315789473684,
+        "newsArticleCount": 19,
+        "polymarketSentiment": 0.17125,
+        "polymarketMarketCount": 4,
+        "fearGreedValue": 12,
+        "fearGreedLabel": "Extreme Fear"
+      }
+    },
+    {
+      "id": "signal_1774088095602",
+      "type": "ETH_PRICE_SPIKE",
+      "source": "cmc+uniswap+news+polymarket",
+      "value": 2157.4866514983814,
+      "threshold": 2100,
+      "confidence": 0.4921447368421053,
+      "timestamp": "2026-03-21T10:14:55.602Z",
+      "metadata": {
+        "priceHistoryLength": 5,
+        "priceAverage": 2157.4866514983814,
+        "priceChange": 0,
+        "cmcPrice": 2157.4866514983814,
+        "cmc24hChange": 1.12788121,
+        "newsSentiment": 0.5526315789473684,
+        "newsArticleCount": 19,
+        "polymarketSentiment": 0.17125,
+        "polymarketMarketCount": 4,
+        "fearGreedValue": 12,
+        "fearGreedLabel": "Extreme Fear"
+      }
+    },
+    {
+      "id": "signal_1774088131585",
+      "type": "ETH_PRICE_SPIKE",
+      "source": "cmc+uniswap+news+polymarket",
+      "value": 2156.9515989972074,
+      "threshold": 2100,
+      "confidence": 0.4921447368421053,
+      "timestamp": "2026-03-21T10:15:31.585Z",
+      "metadata": {
+        "priceHistoryLength": 8,
+        "priceAverage": 2157.286006810441,
+        "priceChange": -0.024799805866815187,
+        "cmcPrice": 2156.9515989972074,
+        "cmc24hChange": 1.01653844,
+        "newsSentiment": 0.5526315789473684,
+        "newsArticleCount": 19,
+        "polymarketSentiment": 0.17125,
+        "polymarketMarketCount": 4,
+        "fearGreedValue": 12,
+        "fearGreedLabel": "Extreme Fear"
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "id": "decision_1774088060274",
+      "signalId": "signal_1774088060273",
+      "type": "MINT",
+      "confidence": 0.4921447368421053,
+      "reasoning": "Signal condition passed: ETH price 2157.4866514983814 > threshold 2100 and confidence 49.2% >= 45%. MINT decision made.",
+      "estimatedCost": "0.05",
+      "conditionCheck": {
+        "metric": "ETH_PRICE",
+        "operator": ">",
+        "currentValue": 2157.4866514983814,
+        "threshold": 2100,
+        "passed": true
+      },
+      "signalSnapshot": {
+        "type": "ETH_PRICE_SPIKE",
+        "source": "cmc+uniswap+news+polymarket",
+        "value": 2157.4866514983814,
+        "threshold": 2100,
+        "detectedAt": "2026-03-21T10:14:20.273Z"
+      },
+      "timestamp": "2026-03-21T10:14:20.274Z"
+    },
+    {
+      "id": "decision_1774088095602",
+      "signalId": "signal_1774088095602",
+      "type": "MINT",
+      "confidence": 0.4921447368421053,
+      "reasoning": "Signal condition passed: ETH price 2157.4866514983814 > threshold 2100 and confidence 49.2% >= 45%. MINT decision made.",
+      "estimatedCost": "0.05",
+      "conditionCheck": {
+        "metric": "ETH_PRICE",
+        "operator": ">",
+        "currentValue": 2157.4866514983814,
+        "threshold": 2100,
+        "passed": true
+      },
+      "signalSnapshot": {
+        "type": "ETH_PRICE_SPIKE",
+        "source": "cmc+uniswap+news+polymarket",
+        "value": 2157.4866514983814,
+        "threshold": 2100,
+        "detectedAt": "2026-03-21T10:14:55.602Z"
+      },
+      "timestamp": "2026-03-21T10:14:55.602Z"
+    },
+    {
+      "id": "decision_1774088131585",
+      "signalId": "signal_1774088131585",
+      "type": "MINT",
+      "confidence": 0.4921447368421053,
+      "reasoning": "Signal condition passed: ETH price 2156.9515989972074 > threshold 2100 and confidence 49.2% >= 45%. MINT decision made.",
+      "estimatedCost": "0.05",
+      "conditionCheck": {
+        "metric": "ETH_PRICE",
+        "operator": ">",
+        "currentValue": 2156.9515989972074,
+        "threshold": 2100,
+        "passed": true
+      },
+      "signalSnapshot": {
+        "type": "ETH_PRICE_SPIKE",
+        "source": "cmc+uniswap+news+polymarket",
+        "value": 2156.9515989972074,
+        "threshold": 2100,
+        "detectedAt": "2026-03-21T10:15:31.585Z"
+      },
+      "timestamp": "2026-03-21T10:15:31.585Z"
+    }
+  ],
+  "executions": [
+    {
+      "id": "mint_1774088083517",
+      "type": "MINT_NFT",
+      "txHash": "0x37c799b5f0aa81c1be316d0fb3ba2993470fc2d41e362c889120774b8a55e5e5",
+      "result": "success",
+      "metadata": {
+        "uploadingImage": "decision_1774088060274.svg (3382 bytes, image/svg+xml)",
+        "uploadComplete": "ipfs://QmWbbiFnR6mgLHzB9raAreMJyjDyqY56mM14WRUEvqMY6B",
+        "mediaGenerated": "ipfs://QmWbbiFnR6mgLHzB9raAreMJyjDyqY56mM14WRUEvqMY6B",
+        "metadataPinned": "ipfs://QmPTT9VAZ87JPNJFxEbbkNWQgRA9QqgagHpUNMvStjaFvH",
+        "gatewayUrl": "https://superrare.myfilebase.com/ipfs/QmPTT9VAZ87JPNJFxEbbkNWQgRA9QqgagHpUNMvStjaFvH",
+        "contract": "0x24759aEC2Fec8cC0f283b85cfD487f84e54C33ee",
+        "uri": "ipfs://QmPTT9VAZ87JPNJFxEbbkNWQgRA9QqgagHpUNMvStjaFvH",
+        "transactionSent": "0x37c799b5f0aa81c1be316d0fb3ba2993470fc2d41e362c889120774b8a55e5e5",
+        "nftMintedTokenId": "33",
+        "txHash": "0x37c799b5f0aa81c1be316d0fb3ba2993470fc2d41e362c889120774b8a55e5e5",
+        "tokenId": 33,
+        "contractAddress": "0x24759aEC2Fec8cC0f283b85cfD487f84e54C33ee",
+        "ipfsUri": "ipfs://QmWbbiFnR6mgLHzB9raAreMJyjDyqY56mM14WRUEvqMY6B"
+      },
+      "timestamp": "2026-03-21T10:14:43.517Z",
+      "attempts": 1
+    },
+    {
+      "id": "exec_mint_1774088083520",
+      "type": "MINT_NFT",
+      "txHash": "0x37c799b5f0aa81c1be316d0fb3ba2993470fc2d41e362c889120774b8a55e5e5",
+      "result": "success",
+      "metadata": {
+        "tokenId": 33,
+        "contract": "0x24759aEC2Fec8cC0f283b85cfD487f84e54C33ee",
+        "ipfsUri": "ipfs://QmWbbiFnR6mgLHzB9raAreMJyjDyqY56mM14WRUEvqMY6B",
+        "decisionId": "decision_1774088060274"
+      },
+      "timestamp": "2026-03-21T10:14:43.520Z",
+      "attempts": 1
+    },
+    {
+      "id": "mint_1774088119751",
+      "type": "MINT_NFT",
+      "txHash": "0xfc49597636d0a1f0cd94bcbeab8a4a02e72523c53e513e1c5369ceb4fd7fcb5d",
+      "result": "success",
+      "metadata": {
+        "uploadingImage": "decision_1774088095602.svg (3512 bytes, image/svg+xml)",
+        "uploadComplete": "ipfs://QmUJB2Lm1nSdFWzZBPvWNq4oPbwqy66ndDeMgLLaUKTNUv",
+        "mediaGenerated": "ipfs://QmUJB2Lm1nSdFWzZBPvWNq4oPbwqy66ndDeMgLLaUKTNUv",
+        "metadataPinned": "ipfs://Qmcqzfzmuu7s6ZgRdWKfUa7modzV8Tb3PaEPhHR29y44ky",
+        "gatewayUrl": "https://superrare.myfilebase.com/ipfs/Qmcqzfzmuu7s6ZgRdWKfUa7modzV8Tb3PaEPhHR29y44ky",
+        "contract": "0x24759aEC2Fec8cC0f283b85cfD487f84e54C33ee",
+        "uri": "ipfs://Qmcqzfzmuu7s6ZgRdWKfUa7modzV8Tb3PaEPhHR29y44ky",
+        "transactionSent": "0xfc49597636d0a1f0cd94bcbeab8a4a02e72523c53e513e1c5369ceb4fd7fcb5d",
+        "nftMintedTokenId": "34",
+        "txHash": "0xfc49597636d0a1f0cd94bcbeab8a4a02e72523c53e513e1c5369ceb4fd7fcb5d",
+        "tokenId": 34,
+        "contractAddress": "0x24759aEC2Fec8cC0f283b85cfD487f84e54C33ee",
+        "ipfsUri": "ipfs://QmUJB2Lm1nSdFWzZBPvWNq4oPbwqy66ndDeMgLLaUKTNUv"
+      },
+      "timestamp": "2026-03-21T10:15:19.751Z",
+      "attempts": 1
+    },
+    {
+      "id": "exec_mint_1774088119755",
+      "type": "MINT_NFT",
+      "txHash": "0xfc49597636d0a1f0cd94bcbeab8a4a02e72523c53e513e1c5369ceb4fd7fcb5d",
+      "result": "success",
+      "metadata": {
+        "tokenId": 34,
+        "contract": "0x24759aEC2Fec8cC0f283b85cfD487f84e54C33ee",
+        "ipfsUri": "ipfs://QmUJB2Lm1nSdFWzZBPvWNq4oPbwqy66ndDeMgLLaUKTNUv",
+        "decisionId": "decision_1774088095602"
+      },
+      "timestamp": "2026-03-21T10:15:19.755Z",
+      "attempts": 1
+    },
+    {
+      "id": "mint_1774088154523",
+      "type": "MINT_NFT",
+      "txHash": "0xff8872a10c9511e8e53a2bfb27820a505c57340633df3a502f3c4d91cb73cee8",
+      "result": "success",
+      "metadata": {
+        "uploadingImage": "decision_1774088131585.svg (3560 bytes, image/svg+xml)",
+        "uploadComplete": "ipfs://QmRrT2ED2LwKSXg8gYCq74upWQh37G5dxGiUXsUZkmnbuQ",
+        "mediaGenerated": "ipfs://QmRrT2ED2LwKSXg8gYCq74upWQh37G5dxGiUXsUZkmnbuQ",
+        "metadataPinned": "ipfs://QmYVAwNDC6rzzV8rhCsxPksWHwq2ZdjTUFPL9zkTK75mnF",
+        "gatewayUrl": "https://superrare.myfilebase.com/ipfs/QmYVAwNDC6rzzV8rhCsxPksWHwq2ZdjTUFPL9zkTK75mnF",
+        "contract": "0x24759aEC2Fec8cC0f283b85cfD487f84e54C33ee",
+        "uri": "ipfs://QmYVAwNDC6rzzV8rhCsxPksWHwq2ZdjTUFPL9zkTK75mnF",
+        "transactionSent": "0xff8872a10c9511e8e53a2bfb27820a505c57340633df3a502f3c4d91cb73cee8",
+        "nftMintedTokenId": "35",
+        "txHash": "0xff8872a10c9511e8e53a2bfb27820a505c57340633df3a502f3c4d91cb73cee8",
+        "tokenId": 35,
+        "contractAddress": "0x24759aEC2Fec8cC0f283b85cfD487f84e54C33ee",
+        "ipfsUri": "ipfs://QmRrT2ED2LwKSXg8gYCq74upWQh37G5dxGiUXsUZkmnbuQ"
+      },
+      "timestamp": "2026-03-21T10:15:54.523Z",
+      "attempts": 1
+    },
+    {
+      "id": "exec_mint_1774088154525",
+      "type": "MINT_NFT",
+      "txHash": "0xff8872a10c9511e8e53a2bfb27820a505c57340633df3a502f3c4d91cb73cee8",
+      "result": "success",
+      "metadata": {
+        "tokenId": 35,
+        "contract": "0x24759aEC2Fec8cC0f283b85cfD487f84e54C33ee",
+        "ipfsUri": "ipfs://QmRrT2ED2LwKSXg8gYCq74upWQh37G5dxGiUXsUZkmnbuQ",
+        "decisionId": "decision_1774088131585"
+      },
+      "timestamp": "2026-03-21T10:15:54.525Z",
+      "attempts": 1
+    }
+  ],
+  "verifications": [
+    {
+      "executionId": "exec_mint_1774088083520",
+      "txHash": "0x37c799b5f0aa81c1be316d0fb3ba2993470fc2d41e362c889120774b8a55e5e5",
+      "confirmed": true,
+      "status": "passed",
+      "blockNumber": 10490135,
+      "gasUsed": 181254
+    },
+    {
+      "executionId": "exec_mint_1774088119755",
+      "txHash": "0xfc49597636d0a1f0cd94bcbeab8a4a02e72523c53e513e1c5369ceb4fd7fcb5d",
+      "confirmed": true,
+      "status": "passed",
+      "blockNumber": 10490138,
+      "gasUsed": 181254
+    },
+    {
+      "executionId": "exec_mint_1774088154525",
+      "txHash": "0xff8872a10c9511e8e53a2bfb27820a505c57340633df3a502f3c4d91cb73cee8",
+      "confirmed": true,
+      "status": "passed",
+      "blockNumber": 10490141,
+      "gasUsed": 181254
+    }
+  ],
+  "summary": {
+    "signalsDetected": 3,
+    "decisionsGenerated": 3,
+    "executionsAttempted": 6,
+    "executionsSucceeded": 6,
+    "executionsFailed": 0,
+    "verificationsPass": 3,
+    "totalGasUsed": 0,
+    "totalCostETH": 0.00463
+  }
+}

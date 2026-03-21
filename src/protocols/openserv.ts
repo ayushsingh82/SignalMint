@@ -1,4 +1,4 @@
-import { PlatformClient } from '@openserv-labs/client';
+import { PlatformClient, triggers } from '@openserv-labs/client';
 import { config } from '../shared/config';
 import { logger } from '../utils/logger';
 
@@ -6,9 +6,14 @@ export class OpenServIntegration {
     private authenticated = false;
     private readonly client: PlatformClient;
     private readonly systemIdsByName = new Map<string, string>();
+    private readonly executableWorkflowIds = new Set<string>();
+    private readonly workerAgentId: number;
+    private readonly webhookTriggerName = 'signalmint-webhook';
+    private readonly processingTaskName = 'process-signal';
 
     constructor() {
         this.client = new PlatformClient();
+        this.workerAgentId = Number(process.env.OPENSERV_WORKER_AGENT_ID || 3);
     }
 
     async createSystem(name: string, agentRoles: string[]): Promise<{ systemId: string; name: string }> {
@@ -17,6 +22,9 @@ export class OpenServIntegration {
 
             const cachedId = this.systemIdsByName.get(name);
             if (cachedId) {
+                if (!this.executableWorkflowIds.has(cachedId)) {
+                    await this.ensureExecutableWorkflow(cachedId);
+                }
                 return { systemId: cachedId, name };
             }
 
@@ -24,6 +32,7 @@ export class OpenServIntegration {
             const existing = workflows.find((workflow) => workflow.name === name);
 
             if (existing) {
+                await this.ensureExecutableWorkflow(existing.id);
                 this.systemIdsByName.set(name, String(existing.id));
                 logger.log('OpenServIntegration', 'createSystem', { name, agents: agentRoles, systemId: existing.id, reused: true }, 'success');
                 return { systemId: String(existing.id), name: existing.name };
@@ -32,13 +41,10 @@ export class OpenServIntegration {
             const workflow = await this.client.workflows.create({
                 name,
                 goal: `SignalMint autonomous system for roles: ${agentRoles.join(', ')}`,
+                agentIds: [this.workerAgentId],
             });
 
-            try {
-                await this.client.workflows.setRunning({ id: workflow.id });
-            } catch {
-                // Some workspaces may already be running or require additional setup.
-            }
+            await this.ensureExecutableWorkflow(workflow.id);
 
             this.systemIdsByName.set(name, String(workflow.id));
             logger.log('OpenServIntegration', 'createSystem', { name, agents: agentRoles, systemId: workflow.id }, 'success');
@@ -53,16 +59,28 @@ export class OpenServIntegration {
         try {
             await this.authenticate();
 
-            const systemId = this.systemIdsByName.values().next().value as string | undefined;
+            const systemId = await this.resolveSystemId();
             if (!systemId) {
                 throw new Error('OpenServ system not initialized. Call createSystem() first.');
             }
 
-            const workflow = await this.client.workflows.get({ id: systemId });
-            const eventLine = `[${new Date().toISOString()}] ${from} -> ${to} (${type}) ${JSON.stringify(payload)}`;
-            const existingGoal = workflow.goal || '';
-            const nextGoal = `${existingGoal}\n${eventLine}`.trim().slice(-4000);
-            await this.client.workflows.update({ id: systemId, goal: nextGoal });
+            if (!this.executableWorkflowIds.has(systemId)) {
+                await this.ensureExecutableWorkflow(systemId);
+            }
+
+            const workflowId = Number(systemId);
+            const input = {
+                from,
+                to,
+                type,
+                payload,
+                timestamp: new Date().toISOString(),
+            };
+            await this.client.triggers.fireWebhook({
+                workflowId,
+                triggerName: this.webhookTriggerName,
+                input,
+            });
 
             logger.log('OpenServIntegration', 'sendMessage', { from, to, type }, 'success');
         } catch (error) {
@@ -78,6 +96,64 @@ export class OpenServIntegration {
         }
         await this.client.authenticate(config.agent.privateKey);
         this.authenticated = true;
+    }
+
+    private async ensureExecutableWorkflow(workflowId: number | string): Promise<void> {
+        const workflowIdStr = String(workflowId);
+        await this.client.workflows.sync({
+            id: workflowIdStr,
+            triggers: [
+                {
+                    name: this.webhookTriggerName,
+                    ...triggers.webhook({ waitForCompletion: true, timeout: 600 }),
+                },
+            ],
+            tasks: [
+                {
+                    name: this.processingTaskName,
+                    agentId: this.workerAgentId,
+                    description: 'Process SignalMint orchestration events',
+                },
+            ],
+            edges: [
+                {
+                    from: `trigger:${this.webhookTriggerName}`,
+                    to: `task:${this.processingTaskName}`,
+                },
+            ],
+        });
+
+        try {
+            await this.client.workflows.setRunning({ id: workflowIdStr });
+        } catch (error) {
+            const maybeAxios = error as {
+                response?: { data?: { message?: string } };
+            };
+            const responseMessage = maybeAxios.response?.data?.message || '';
+            const message = String(error);
+            if (!responseMessage.includes('already set to the desired state') && !message.includes('already set to the desired state')) {
+                logger.log('OpenServIntegration', 'setRunning', { workflowId: workflowIdStr }, 'failed', message);
+            }
+        }
+
+        this.executableWorkflowIds.add(workflowIdStr);
+    }
+
+    private async resolveSystemId(): Promise<string | undefined> {
+        const cachedId = this.systemIdsByName.values().next().value as string | undefined;
+        if (cachedId) {
+            return cachedId;
+        }
+
+        const workflows = await this.client.workflows.list();
+        const known = workflows.find((workflow) => workflow.name === 'SignalMint System');
+        if (!known) {
+            return undefined;
+        }
+
+        const resolvedId = String(known.id);
+        this.systemIdsByName.set(known.name, resolvedId);
+        return resolvedId;
     }
 }
 

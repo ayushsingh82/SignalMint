@@ -3,6 +3,8 @@ import { config } from '../shared/config';
 import { logger } from '../utils/logger';
 import { Wallet } from 'ethers';
 
+type ZyfaiChainId = 8453 | 42161 | 9745;
+
 export class ZyfaiIntegration {
     private sdk: ZyfaiSDK | null = null;
     private isInitialized = false;
@@ -19,7 +21,7 @@ export class ZyfaiIntegration {
             throw new Error('ZYFAI_API_KEY missing');
         }
 
-        const chainId = this.getChainId('base');
+        const chainId = this.getConfiguredChainId();
         this.sdk = new ZyfaiSDK({
             apiKey,
             referralSource: 'signalmint',
@@ -32,31 +34,36 @@ export class ZyfaiIntegration {
 
     async getOrCreateWallet(): Promise<string> {
         await this.initialize();
-        const agentAddress = this.getEoaAddress();
-        const chainId = this.getChainId('base');
+        const userAddress = this.getEoaAddress();
+        const chainId = this.getConfiguredChainId();
         const sdk = this.getSdk();
 
-        const walletInfo = await sdk.getSmartWalletAddress(agentAddress, chainId);
+        const walletInfo = await sdk.getSmartWalletAddress(userAddress, chainId);
         let deployed = walletInfo.isDeployed;
         if (!deployed) {
             try {
-                await sdk.deploySafe(agentAddress, chainId, 'conservative');
+                await sdk.deploySafe(userAddress, chainId, 'conservative');
                 deployed = true;
             } catch (error) {
                 const message = String(error);
                 if (message.includes('is not an EOA')) {
-                    throw new Error(
-                        `Zyfai requires an EOA for userAddress. Set ZYFAI_USER_EOA in .env to a valid EOA on ${chainId}.`
-                    );
+                    if (config.zyfai?.userEoa) {
+                        throw new Error(
+                            `Zyfai rejected ZYFAI_USER_EOA=${config.zyfai.userEoa}. Set ZYFAI_USER_EOA to a valid EOA on chain ${chainId}.`
+                        );
+                    }
+
+                    // If no explicit user EOA is configured, continue with best-effort session setup.
+                    logger.log('ZyfaiIntegration', 'deploySafe', { userAddress, chainId }, 'failed', message);
+                } else {
+                    throw error;
                 }
-                throw error;
             }
         }
 
-        await sdk.createSessionKey(agentAddress, chainId);
-        const user = await sdk.getUserDetails();
-        if (!user.hasActiveSessionKey) {
-            await sdk.createSessionKey(agentAddress, chainId);
+        const session = await sdk.createSessionKey(userAddress, chainId);
+        if (!session.alreadyActive && !session.sessionActivation?.id) {
+            throw new Error('Zyfai session key activation did not return an activation id');
         }
 
         logger.log('ZyfaiIntegration', 'getOrCreateWallet', { wallet: walletInfo.address, deployed }, 'success');
@@ -119,7 +126,12 @@ export class ZyfaiIntegration {
         return this.sdk;
     }
 
-    private getChainId(chain: string): 8453 | 42161 | 9745 {
+    private getConfiguredChainId(): ZyfaiChainId {
+        const chain = config.zyfai?.chain || 'base';
+        return this.getChainId(chain);
+    }
+
+    private getChainId(chain: string): ZyfaiChainId {
         switch (chain.toLowerCase()) {
             case 'base':
                 return 8453;

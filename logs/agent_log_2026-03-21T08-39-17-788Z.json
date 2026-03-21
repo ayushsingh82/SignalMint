@@ -1,0 +1,114 @@
+{
+  "version": "1.0.0",
+  "cycleId": "2026-03-21T08:39:17.788Z",
+  "startTime": "2026-03-21T08:39:17.789Z",
+  "endTime": "2026-03-21T08:40:10.728Z",
+  "signals": [
+    {
+      "id": "signal_1774082381480",
+      "type": "ETH_PRICE_SPIKE",
+      "source": "cmc+uniswap+news+polymarket",
+      "value": 2152.3370502205175,
+      "threshold": 2100,
+      "confidence": 0.49932499999999996,
+      "timestamp": "2026-03-21T08:39:41.480Z",
+      "metadata": {
+        "priceHistoryLength": 1,
+        "priceAverage": 2152.3370502205175,
+        "priceChange": 0,
+        "cmcPrice": 2152.3370502205175,
+        "cmc24hChange": -0.60426624,
+        "newsSentiment": 0.6,
+        "newsArticleCount": 20,
+        "polymarketSentiment": 0.171625,
+        "polymarketMarketCount": 4,
+        "fearGreedValue": 12,
+        "fearGreedLabel": "Extreme Fear"
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "id": "decision_1774082381480",
+      "signalId": "signal_1774082381480",
+      "type": "MINT",
+      "confidence": 0.49932499999999996,
+      "reasoning": "Signal condition passed: ETH price 2152.3370502205175 > threshold 2100 and confidence 49.9% >= 45%. MINT decision made.",
+      "estimatedCost": "0.05",
+      "conditionCheck": {
+        "metric": "ETH_PRICE",
+        "operator": ">",
+        "currentValue": 2152.3370502205175,
+        "threshold": 2100,
+        "passed": true
+      },
+      "signalSnapshot": {
+        "type": "ETH_PRICE_SPIKE",
+        "source": "cmc+uniswap+news+polymarket",
+        "value": 2152.3370502205175,
+        "threshold": 2100,
+        "detectedAt": "2026-03-21T08:39:41.480Z"
+      },
+      "timestamp": "2026-03-21T08:39:41.480Z"
+    }
+  ],
+  "executions": [
+    {
+      "id": "mint_1774082408205",
+      "type": "MINT_NFT",
+      "txHash": "0x12fb17bf45cbb1ea41b56898d5c20f7286d7a206a9130a2f939113e64ed7f0b2",
+      "result": "success",
+      "metadata": {
+        "uploadingImage": "decision_1774082381480.svg (3409 bytes, image/svg+xml)",
+        "uploadComplete": "ipfs://Qmdkcg8dDiwnsYNpHqxzroogsLywNQtTAVjZq6xQaX3i34",
+        "mediaGenerated": "ipfs://Qmdkcg8dDiwnsYNpHqxzroogsLywNQtTAVjZq6xQaX3i34",
+        "metadataPinned": "ipfs://Qmc8sX6giGChq18VxmG8zi835qozYMb5AgArWRQcMBt3aY",
+        "gatewayUrl": "https://superrare.myfilebase.com/ipfs/Qmc8sX6giGChq18VxmG8zi835qozYMb5AgArWRQcMBt3aY",
+        "contract": "0x24759aEC2Fec8cC0f283b85cfD487f84e54C33ee",
+        "uri": "ipfs://Qmc8sX6giGChq18VxmG8zi835qozYMb5AgArWRQcMBt3aY",
+        "transactionSent": "0x12fb17bf45cbb1ea41b56898d5c20f7286d7a206a9130a2f939113e64ed7f0b2",
+        "nftMintedTokenId": "31",
+        "txHash": "0x12fb17bf45cbb1ea41b56898d5c20f7286d7a206a9130a2f939113e64ed7f0b2",
+        "tokenId": 31,
+        "contractAddress": "0x24759aEC2Fec8cC0f283b85cfD487f84e54C33ee",
+        "ipfsUri": "ipfs://Qmdkcg8dDiwnsYNpHqxzroogsLywNQtTAVjZq6xQaX3i34"
+      },
+      "timestamp": "2026-03-21T08:40:08.205Z",
+      "attempts": 1
+    },
+    {
+      "id": "exec_mint_1774082408205",
+      "type": "MINT_NFT",
+      "txHash": "0x12fb17bf45cbb1ea41b56898d5c20f7286d7a206a9130a2f939113e64ed7f0b2",
+      "result": "success",
+      "metadata": {
+        "tokenId": 31,
+        "contract": "0x24759aEC2Fec8cC0f283b85cfD487f84e54C33ee",
+        "ipfsUri": "ipfs://Qmdkcg8dDiwnsYNpHqxzroogsLywNQtTAVjZq6xQaX3i34",
+        "decisionId": "decision_1774082381480"
+      },
+      "timestamp": "2026-03-21T08:40:08.205Z",
+      "attempts": 1
+    }
+  ],
+  "verifications": [
+    {
+      "executionId": "exec_mint_1774082408205",
+      "txHash": "0x12fb17bf45cbb1ea41b56898d5c20f7286d7a206a9130a2f939113e64ed7f0b2",
+      "confirmed": true,
+      "status": "passed",
+      "blockNumber": 10489673,
+      "gasUsed": 181254
+    }
+  ],
+  "summary": {
+    "signalsDetected": 1,
+    "decisionsGenerated": 1,
+    "executionsAttempted": 2,
+    "executionsSucceeded": 2,
+    "executionsFailed": 0,
+    "verificationsPass": 1,
+    "totalGasUsed": 0,
+    "totalCostETH": 0.00463
+  }
+}
