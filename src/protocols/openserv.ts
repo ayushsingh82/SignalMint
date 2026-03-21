@@ -123,6 +123,8 @@ export class OpenServIntegration {
             ],
         });
 
+        await this.ensureTriggerActive(workflowIdStr);
+
         try {
             await this.client.workflows.setRunning({ id: workflowIdStr });
         } catch (error) {
@@ -137,6 +139,19 @@ export class OpenServIntegration {
         }
 
         this.executableWorkflowIds.add(workflowIdStr);
+    }
+
+    private async ensureTriggerActive(workflowId: string): Promise<void> {
+        const triggerList = await this.client.triggers.list({ workflowId });
+        const trigger = triggerList.find((item) => item.name === this.webhookTriggerName);
+        if (!trigger) {
+            throw new Error(`OpenServ trigger '${this.webhookTriggerName}' not found on workflow ${workflowId}`);
+        }
+
+        if (trigger.isActive === false) {
+            await this.client.triggers.activate({ workflowId, id: trigger.id });
+            logger.log('OpenServIntegration', 'activateTrigger', { workflowId, triggerId: trigger.id, name: trigger.name }, 'success');
+        }
     }
 
     private async resolveSystemId(): Promise<string | undefined> {
