@@ -9,6 +9,7 @@ interface RareMintRaw {
   tokenId: string;
   contract: string;
   timestamp: Date;
+  identityId?: string;
   metadataUri?: string;
   metadataGatewayUrl?: string;
   imageIpfsUri?: string;
@@ -50,6 +51,7 @@ function mergeMintExecutionsFromLog(log: AgentLogFile): Map<string, RareMintRaw>
   }
 
   const contractFilter = process.env.RARE_CONTRACT_ADDRESS?.toLowerCase();
+  const envIdentityId = process.env.ERC8004_AGENT_ID?.trim();
   const out = new Map<string, RareMintRaw>();
 
   for (const [txHash, meta] of metaByTx) {
@@ -74,6 +76,14 @@ function mergeMintExecutionsFromLog(log: AgentLogFile): Map<string, RareMintRaw>
       typeof meta.ipfsUri === "string" && isLikelyIpfsUri(meta.ipfsUri)
         ? meta.ipfsUri
         : undefined;
+
+    const identityId = String(
+      meta.identityId ??
+      meta.erc8004IdentityId ??
+      meta.agentId ??
+      envIdentityId ??
+      ""
+    ).trim() || undefined;
 
     // Need at least metadata or image on IPFS to count as Rare/IPFS-backed
     if (!metadataUri && !metadataGatewayUrl && !imageIpfsUri) continue;
@@ -105,6 +115,7 @@ function mergeMintExecutionsFromLog(log: AgentLogFile): Map<string, RareMintRaw>
       tokenId,
       contract,
       timestamp,
+      identityId,
       metadataUri,
       metadataGatewayUrl,
       imageIpfsUri,
@@ -234,6 +245,7 @@ export async function getRareMintsFromAgentLogs(options?: {
         name,
         signal: raw.signal,
         status: "minted",
+        identityId: raw.identityId,
         imageUri,
         tokenId: raw.tokenId,
         explorerUrl,

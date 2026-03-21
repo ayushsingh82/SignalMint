@@ -7,7 +7,6 @@ export function Footer() {
         <Link href="/" className="font-medium text-[var(--brand-primaryText)] hover:opacity-90">
           <span className="text-[var(--brand-accentOnBlue)]">Signal</span>Mint
         </Link>
-        <p>Protocol Labs + SuperRare — art shaped by the market.</p>
       </div>
     </footer>
   );

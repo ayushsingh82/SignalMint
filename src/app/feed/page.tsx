@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getFeed } from "@/lib/data";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Feed — SignalMint",
   description: "News and drops from the SignalMint agent. Art cooked from market signals.",
@@ -48,6 +50,8 @@ export default async function FeedPage() {
                     {e.ctaUrl ? (
                       <Link
                         href={e.ctaUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="rounded-full border border-[var(--brand-accentOnBlue)]/50 bg-[var(--brand-accentOnBlue)]/10 px-4 py-1.5 font-bold text-[var(--brand-accentOnBlue)] transition-all hover:bg-[var(--brand-accentOnBlue)] hover:text-black hover:shadow-[0_0_15px_rgba(173,255,1,0.4)]"
                       >
                         {e.ctaLabel}
