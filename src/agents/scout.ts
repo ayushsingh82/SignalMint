@@ -223,12 +223,12 @@ export class ScoutAgent {
   private buildMintConditions(): MintCondition[] {
     const conditions: MintCondition[] = [];
 
-    // Build 50 distinct condition recipes: 10 strictness tiers x 5 condition families.
-    for (let tier = 0; tier < 10; tier++) {
-      const breakout = 0.15 + tier * 0.12;
-      const sentimentFloor = Math.min(0.45 + tier * 0.02, 0.85);
-      const confidenceFloor = Math.min(0.55 + tier * 0.04, 0.95);
-      const cmcChangeFloor = 0.2 + tier * 0.18;
+    // Build 100 distinct condition recipes: 20 strictness tiers x 5 condition families.
+    for (let tier = 0; tier < 20; tier++) {
+      const breakout = 0.12 + tier * 0.06;
+      const sentimentFloor = Math.min(0.43 + tier * 0.015, 0.9);
+      const confidenceFloor = Math.min(0.52 + tier * 0.022, 0.98);
+      const cmcChangeFloor = 0.1 + tier * 0.11;
 
       const baseIndex = tier * 5;
 
