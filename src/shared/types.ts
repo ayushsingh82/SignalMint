@@ -19,7 +19,7 @@ export interface Decision {
   reasoning: string;
   estimatedCost: string;
   conditionCheck?: {
-    metric: 'ETH_PRICE';
+    metric: 'ETH_PRICE' | 'MULTI_FACTOR_MARKET';
     operator: '>' | '>=' | '<' | '<=';
     currentValue: number;
     threshold: number;

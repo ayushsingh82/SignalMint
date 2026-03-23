@@ -15,6 +15,10 @@ export class ExecutorAgent {
   private nftContract: string | null = null;
   private isInitialized: boolean = false;
   private executionLog: Execution[] = [];
+  private mintCooldownMs = config.signals.mintCooldownMs;
+  private duplicateSignalWindowMs = config.signals.duplicateSignalWindowMs;
+  private lastMintAt: number = 0;
+  private recentMintSignatures = new Map<string, number>();
 
   /**
    * Initialize executor (deploy NFT collection if needed)
@@ -92,8 +96,47 @@ export class ExecutorAgent {
           return;
         }
 
+        const duplicateReason = this.getDuplicateMintReason(decision);
+        if (duplicateReason) {
+          logger.log('ExecutorAgent', 'mint_blocked_duplicate', {
+            decisionId: decision.id,
+            reason: duplicateReason,
+          }, 'failed');
+
+          const duplicateBlocked: Execution = {
+            id: `exec_mint_duplicate_${Date.now()}`,
+            type: 'MINT_NFT',
+            result: 'failed',
+            error: `Mint blocked: ${duplicateReason}`,
+            metadata: {
+              decisionId: decision.id,
+              signalSnapshot: decision.signalSnapshot,
+            },
+            timestamp: new Date(),
+            attempts: 1,
+          };
+
+          logger.recordExecution(duplicateBlocked, false);
+          this.executionLog.push(duplicateBlocked);
+          await messageBus.sendMessage({
+            from: 'ExecutorAgent',
+            to: 'VerifierAgent',
+            type: 'execution_result',
+            payload: duplicateBlocked,
+            timestamp: new Date(),
+          });
+          return;
+        }
+
         // Execute mint + optional swap
         const execution = await this.executeMint(decision);
+
+        if (execution.result === 'success') {
+          this.lastMintAt = Date.now();
+          const signature = this.buildMintSignature(decision);
+          this.recentMintSignatures.set(signature, Date.now());
+          this.cleanupMintSignatureCache();
+        }
 
         logger.log('ExecutorAgent', 'execution_completed', {
           type: execution.type,
@@ -237,6 +280,38 @@ export class ExecutorAgent {
     if (!decision.conditionCheck) return false;
     if (!decision.conditionCheck.passed) return false;
     return true;
+  }
+
+  private getDuplicateMintReason(decision: Decision): string | null {
+    const now = Date.now();
+    if (this.lastMintAt && now - this.lastMintAt < this.mintCooldownMs) {
+      return `mint cooldown active (${this.mintCooldownMs}ms)`;
+    }
+
+    const signature = this.buildMintSignature(decision);
+    const lastSeen = this.recentMintSignatures.get(signature);
+    if (lastSeen && now - lastSeen < this.duplicateSignalWindowMs) {
+      return 'similar market condition already minted recently';
+    }
+
+    return null;
+  }
+
+  private buildMintSignature(decision: Decision): string {
+    const signalType = decision.signalSnapshot?.type || 'UNKNOWN';
+    const signalValue = decision.signalSnapshot?.value ?? decision.conditionCheck?.currentValue ?? 0;
+    const priceBucket = Math.round(Number(signalValue) / 25) * 25;
+    const confidenceBucket = Math.round(decision.confidence * 10);
+    return `${signalType}|${priceBucket}|${confidenceBucket}`;
+  }
+
+  private cleanupMintSignatureCache(): void {
+    const now = Date.now();
+    for (const [key, ts] of this.recentMintSignatures.entries()) {
+      if (now - ts >= this.duplicateSignalWindowMs) {
+        this.recentMintSignatures.delete(key);
+      }
+    }
   }
 
   /**

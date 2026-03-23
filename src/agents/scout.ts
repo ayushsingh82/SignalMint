@@ -21,6 +21,8 @@ type IntelligenceBundle = {
 export class ScoutAgent {
   private signalThreshold = config.signals.ethPriceThreshold;
   private confidenceThreshold = config.signals.confidenceThreshold;
+  private sentimentThreshold = config.signals.sentimentThreshold;
+  private minDataSourcesForMint = config.signals.minDataSourcesForMint;
   private priceHistory: CircularBuffer<number>;
   private lastSignalTime: number = 0;
   private minSignalIntervalMs: number = 10000; // Prevent signal spam
@@ -97,13 +99,22 @@ export class ScoutAgent {
     const confidence = this.calculateConfidence(currentPrice, intelligence);
     const newsScore = intelligence.newsSentiment?.score ?? 0.5;
     const polymarketScore = intelligence.polymarketSentiment?.score ?? 0.5;
-    const sentimentScore = newsScore * 0.6 + polymarketScore * 0.4;
+    const sentimentScore = newsScore * 0.55 + polymarketScore * 0.45;
 
-    // Signal threshold met and high confidence
+    const sourceCount = this.countActiveSources(intelligence);
+    const priceChange = this.getPriceChange();
+    const cmc24hChange = intelligence.cmcSnapshot?.percentChange24h ?? 0;
+
+    const hasPriceBreakout = currentPrice > this.signalThreshold;
+    const hasMomentum = priceChange >= 0.8 || cmc24hChange >= 1.2;
+
+    // Only emit a signal when we have strong and corroborated evidence.
     if (
-      currentPrice > this.signalThreshold &&
+      hasPriceBreakout &&
       confidence >= this.confidenceThreshold &&
-      sentimentScore >= config.signals.sentimentThreshold
+      sentimentScore >= this.sentimentThreshold &&
+      sourceCount >= this.minDataSourcesForMint &&
+      hasMomentum
     ) {
       return {
         id: `signal_${Date.now()}`,
@@ -116,9 +127,10 @@ export class ScoutAgent {
         metadata: {
           priceHistoryLength: this.priceHistory.getSize(),
           priceAverage: this.priceHistory.getAverage(),
-          priceChange: this.getPriceChange(),
+          priceChange,
           uniswapPrice: intelligence.cmcSnapshot ? undefined : currentPrice,
           cmcPrice: intelligence.cmcSnapshot?.ethPriceUsd,
+          btcPrice: intelligence.cmcSnapshot?.btcPriceUsd,
           cmc24hChange: intelligence.cmcSnapshot?.percentChange24h,
           newsSentiment: intelligence.newsSentiment?.score,
           newsArticleCount: intelligence.newsSentiment?.articleCount,
@@ -126,11 +138,27 @@ export class ScoutAgent {
           polymarketMarketCount: intelligence.polymarketSentiment?.marketCount,
           fearGreedValue: intelligence.fearGreed?.value,
           fearGreedLabel: intelligence.fearGreed?.label,
+          sourceCount,
+          sentimentScore,
+          hasMomentum,
+          hasPriceBreakout,
         },
       };
     }
 
     return null;
+  }
+
+  private countActiveSources(intelligence: IntelligenceBundle): number {
+    const sources = [
+      true, // Uniswap quote is mandatory in current flow
+      Boolean(intelligence.cmcSnapshot),
+      Boolean(intelligence.newsSentiment),
+      Boolean(intelligence.polymarketSentiment),
+      Boolean(intelligence.fearGreed),
+    ];
+
+    return sources.filter(Boolean).length;
   }
 
   /**

@@ -71,6 +71,10 @@ export const config = {
       0.8
     ),
     sentimentThreshold: Number(process.env.SIGNAL_SENTIMENT_THRESHOLD || 0.5),
+    mintScoreThreshold: Number(process.env.SIGNAL_MINT_SCORE_THRESHOLD || 0.72),
+    minDataSourcesForMint: Number(process.env.MIN_DATA_SOURCES_FOR_MINT || 3),
+    mintCooldownMs: Number(process.env.MINT_COOLDOWN_MS || 10 * 60 * 1000),
+    duplicateSignalWindowMs: Number(process.env.DUPLICATE_SIGNAL_WINDOW_MS || 60 * 60 * 1000),
     priceCheckIntervalMs: Number(process.env.PRICE_CHECK_INTERVAL_MS || 5000),
   },
 

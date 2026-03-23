@@ -26,7 +26,7 @@ export class PinataClient {
      * @param name Optional name for the file in Pinata
      * @returns The IPFS CID and URI
      */
-    async uploadJson(data: any, name: string = 'metadata.json'): Promise<{ cid: string; uri: string }> {
+    async uploadJson(data: unknown, name: string = 'metadata.json'): Promise<{ cid: string; uri: string }> {
         try {
             const payload = {
                 pinataOptions: {
@@ -46,7 +46,7 @@ export class PinataClient {
 
             logger.log('PinataClient', 'uploadJson', { name, cid }, 'success');
             return { cid, uri };
-        } catch (error: any) {
+        } catch (error: unknown) {
             const errorMsg = this.extractErrorMessage(error);
             logger.log('PinataClient', 'uploadJson', { name }, 'failed', errorMsg);
             throw new Error(`Pinata JSON upload failed: ${errorMsg}`);
@@ -93,15 +93,15 @@ export class PinataClient {
 
             logger.log('PinataClient', 'uploadFile', { fileName, cid }, 'success');
             return { cid, uri };
-        } catch (error: any) {
+        } catch (error: unknown) {
             const errorMsg = this.extractErrorMessage(error);
             logger.log('PinataClient', 'uploadFile', { filePath }, 'failed', errorMsg);
             throw new Error(`Pinata file upload failed: ${errorMsg}`);
         }
     }
 
-    private getHeaders(isFormData: boolean = false) {
-        const headers: any = {};
+    private getHeaders(isFormData: boolean = false): Record<string, string> {
+        const headers: Record<string, string> = {};
 
         if (this.jwt) {
             headers['Authorization'] = `Bearer ${this.jwt}`;
@@ -119,19 +119,19 @@ export class PinataClient {
         return headers;
     }
 
-    private extractErrorMessage(error: any): string {
-        const responseData = error?.response?.data;
+    private extractErrorMessage(error: unknown): string {
+        const responseData = this.getResponseData(error);
         if (typeof responseData === 'string') {
             return responseData;
         }
 
-        const details = responseData?.error ?? responseData;
+        const details = this.getNestedValue(responseData, 'error') ?? responseData;
         if (typeof details === 'string') {
             return details;
         }
 
-        const reason = details?.reason;
-        const message = details?.details || details?.message;
+        const reason = this.getNestedValue(details, 'reason');
+        const message = this.getNestedValue(details, 'details') || this.getNestedValue(details, 'message');
 
         if (reason && message) {
             return `${reason}: ${message}`;
@@ -143,7 +143,31 @@ export class PinataClient {
             return String(message);
         }
 
-        return error?.message || 'Unknown Pinata error';
+        if (error instanceof Error) {
+            return error.message;
+        }
+
+        return 'Unknown Pinata error';
+    }
+
+    private getResponseData(error: unknown): unknown {
+        if (axios.isAxiosError(error)) {
+            return error.response?.data;
+        }
+        return undefined;
+    }
+
+    private getNestedValue(input: unknown, key: string): string | undefined {
+        if (!input || typeof input !== 'object') {
+            return undefined;
+        }
+
+        const value = (input as Record<string, unknown>)[key];
+        if (typeof value === 'string') {
+            return value;
+        }
+
+        return undefined;
     }
 }
 
