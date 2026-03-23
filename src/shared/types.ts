@@ -31,6 +31,10 @@ export interface Decision {
     value: number;
     threshold: number;
     detectedAt: string;
+    conditionId?: string;
+    conditionName?: string;
+    matchedConditionCount?: number;
+    thirdPartyChecksPassed?: number;
   };
   timestamp: Date;
 }

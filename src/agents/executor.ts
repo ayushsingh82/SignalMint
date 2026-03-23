@@ -175,10 +175,12 @@ export class ExecutorAgent {
     }
 
     try {
+      const mintTheme = this.resolveMintTheme(decision);
+
       // Generate metadata for the mint
-      const nftName = `Market Signal #${Math.floor(Date.now() / 1000)}`;
+      const nftName = `${mintTheme.titlePrefix} #${Math.floor(Date.now() / 1000)}`;
       const nftDescription =
-        `Autonomous mint triggered by market signal. Decision ID: ${decision.id}`;
+        `Autonomous mint triggered by market signal. Decision ID: ${decision.id}. Condition: ${mintTheme.conditionName} (${mintTheme.conditionId}).`;
 
       const conditionText = decision.conditionCheck
         ? `${decision.conditionCheck.metric} ${decision.conditionCheck.operator} ${decision.conditionCheck.threshold}`
@@ -187,8 +189,12 @@ export class ExecutorAgent {
       const txRefs = [`decision:${decision.id}`];
 
       const attributes: Record<string, string> = {
-        'Signal_Type': 'ETH_PRICE_SPIKE',
+        'Signal_Type': mintTheme.signalType,
         'Condition': conditionText,
+        'Condition_ID': mintTheme.conditionId,
+        'Condition_Name': mintTheme.conditionName,
+        'Condition_Matched_Count': String(decision.signalSnapshot?.matchedConditionCount ?? 0),
+        'ThirdParty_Checks': String(decision.signalSnapshot?.thirdPartyChecksPassed ?? 0),
         'Confidence': (decision.confidence * 100).toFixed(2),
         'Condition_Passed': String(Boolean(decision.conditionCheck?.passed)),
         'Observed_Value': String(decision.conditionCheck?.currentValue ?? ''),
@@ -273,6 +279,54 @@ export class ExecutorAgent {
         attempts: 1,
       };
     }
+  }
+
+  private resolveMintTheme(decision: Decision): {
+    conditionId: string;
+    conditionName: string;
+    signalType: string;
+    titlePrefix: string;
+  } {
+    const conditionId = decision.signalSnapshot?.conditionId || 'C00';
+    const conditionName = decision.signalSnapshot?.conditionName || 'General Market Condition';
+    const group = this.getConditionGroup(conditionId);
+
+    const titlePrefixByGroup: Record<string, string> = {
+      momentum: 'Momentum Pulse',
+      sentiment: 'Sentiment Sync',
+      cross_market: 'Cross-Market Echo',
+      risk: 'Risk Regime Shift',
+      resilience: 'Resilience Composite',
+      unknown: 'Market Signal',
+    };
+
+    const signalTypeByGroup: Record<string, string> = {
+      momentum: 'MOMENTUM_BREAKOUT',
+      sentiment: 'SENTIMENT_ALIGNMENT',
+      cross_market: 'CROSS_MARKET_CONFIRMATION',
+      risk: 'RISK_REGIME_FILTER',
+      resilience: 'RESILIENCE_COMPOSITE',
+      unknown: 'ETH_PRICE_SPIKE',
+    };
+
+    return {
+      conditionId,
+      conditionName,
+      signalType: signalTypeByGroup[group],
+      titlePrefix: titlePrefixByGroup[group],
+    };
+  }
+
+  private getConditionGroup(conditionId: string): 'momentum' | 'sentiment' | 'cross_market' | 'risk' | 'resilience' | 'unknown' {
+    const numeric = Number(conditionId.replace('C', ''));
+    if (!Number.isFinite(numeric) || numeric <= 0) return 'unknown';
+
+    const offset = (numeric - 1) % 5;
+    if (offset === 0) return 'momentum';
+    if (offset === 1) return 'sentiment';
+    if (offset === 2) return 'cross_market';
+    if (offset === 3) return 'risk';
+    return 'resilience';
   }
 
   private canMintFromDecision(decision: Decision): boolean {

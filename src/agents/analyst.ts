@@ -12,6 +12,7 @@ export class AnalystAgent {
   private mintScoreThreshold = config.signals.mintScoreThreshold;
   private sentimentThreshold = config.signals.sentimentThreshold;
   private minDataSourcesForMint = config.signals.minDataSourcesForMint;
+  private minThirdPartyChecks = config.signals.minThirdPartyChecks;
   private mintCooldownMs = config.signals.mintCooldownMs;
   private duplicateSignalWindowMs = config.signals.duplicateSignalWindowMs;
   private gasEstimate = '0.05'; // ETH
@@ -66,6 +67,8 @@ export class AnalystAgent {
     const isPriceConditionMet = signal.value > signal.threshold;
     const isSentimentHealthy = market.sentimentScore >= this.sentimentThreshold;
     const hasEnoughSources = market.sourceCount >= this.minDataSourcesForMint;
+    const hasMatchedCondition = market.matchedConditionCount > 0;
+    const hasThirdPartyChecks = market.thirdPartyChecksPassed >= this.minThirdPartyChecks;
     const passesScore = mintScore >= this.mintScoreThreshold;
 
     const fingerprint = this.buildSignalFingerprint(signal, market);
@@ -77,6 +80,8 @@ export class AnalystAgent {
       isPriceConditionMet &&
       isSentimentHealthy &&
       hasEnoughSources &&
+      hasMatchedCondition &&
+      hasThirdPartyChecks &&
       passesScore &&
       !duplicateBlocked &&
       !cooldownBlocked;
@@ -99,6 +104,8 @@ export class AnalystAgent {
         isPriceConditionMet,
         isSentimentHealthy,
         hasEnoughSources,
+        hasMatchedCondition,
+        hasThirdPartyChecks,
         duplicateBlocked,
         cooldownBlocked,
       }),
@@ -116,6 +123,10 @@ export class AnalystAgent {
         value: signal.value,
         threshold: signal.threshold,
         detectedAt: signal.timestamp.toISOString(),
+        conditionId: market.conditionId,
+        conditionName: market.conditionName,
+        matchedConditionCount: market.matchedConditionCount,
+        thirdPartyChecksPassed: market.thirdPartyChecksPassed,
       },
       timestamp: new Date(),
     };
@@ -135,6 +146,8 @@ export class AnalystAgent {
       isPriceConditionMet: boolean;
       isSentimentHealthy: boolean;
       hasEnoughSources: boolean;
+      hasMatchedCondition: boolean;
+      hasThirdPartyChecks: boolean;
       duplicateBlocked: boolean;
       cooldownBlocked: boolean;
     }
@@ -150,6 +163,8 @@ export class AnalystAgent {
       if (!details.isPriceConditionMet) failedReasons.push('price not above threshold');
       if (!details.isSentimentHealthy) failedReasons.push('sentiment below threshold');
       if (!details.hasEnoughSources) failedReasons.push('insufficient data-source coverage');
+      if (!details.hasMatchedCondition) failedReasons.push('no matched condition in 50-rule catalog');
+      if (!details.hasThirdPartyChecks) failedReasons.push('insufficient third-party checks');
       if (details.mintScore < this.mintScoreThreshold) failedReasons.push('mint score below threshold');
       if (details.duplicateBlocked) failedReasons.push('duplicate signal fingerprint in active window');
       if (details.cooldownBlocked) failedReasons.push('mint cooldown active');
@@ -164,6 +179,10 @@ export class AnalystAgent {
     momentum: number;
     confidence: number;
     agreement: number;
+    conditionId: string;
+    conditionName: string;
+    matchedConditionCount: number;
+    thirdPartyChecksPassed: number;
   } {
     const metadata = signal.metadata || {};
     const newsSentiment = this.toNumber(metadata.newsSentiment, 0.5);
@@ -176,6 +195,10 @@ export class AnalystAgent {
     const momentum = Math.max(0, Math.min(1, ((priceChange / 3) + (cmc24hChange / 6)) / 2 + 0.5));
 
     const agreement = 1 - Math.min(1, Math.abs(newsSentiment - polymarketSentiment) * 2);
+    const conditionId = String(metadata.conditionId || 'UNKNOWN_CONDITION');
+    const conditionName = String(metadata.conditionName || 'Unknown Condition');
+    const matchedConditionCount = this.toNumber(metadata.matchedConditionCount, 0);
+    const thirdPartyChecksPassed = this.toNumber(metadata.thirdPartyChecksPassed, 0);
 
     return {
       sentimentScore,
@@ -183,6 +206,10 @@ export class AnalystAgent {
       momentum,
       confidence: signal.confidence,
       agreement,
+      conditionId,
+      conditionName,
+      matchedConditionCount,
+      thirdPartyChecksPassed,
     };
   }
 
@@ -194,6 +221,10 @@ export class AnalystAgent {
       momentum: number;
       confidence: number;
       agreement: number;
+      conditionId: string;
+      conditionName: string;
+      matchedConditionCount: number;
+      thirdPartyChecksPassed: number;
     }
   ): number {
     const normalizedPrice = Math.max(
@@ -210,7 +241,10 @@ export class AnalystAgent {
       (market.agreement * 0.1) +
       (normalizedPrice * 0.05);
 
-    return Math.max(0, Math.min(1, score));
+    // Boost small amount when more independent condition checks agree.
+    const conditionBoost = Math.min(0.05, market.matchedConditionCount * 0.002);
+
+    return Math.max(0, Math.min(1, score + conditionBoost));
   }
 
   private buildSignalFingerprint(
@@ -221,13 +255,17 @@ export class AnalystAgent {
       momentum: number;
       confidence: number;
       agreement: number;
+      conditionId: string;
+      conditionName: string;
+      matchedConditionCount: number;
+      thirdPartyChecksPassed: number;
     }
   ): string {
     const priceBucket = Math.round(signal.value / 25) * 25;
     const sentimentBucket = Math.round(market.sentimentScore * 10);
     const confidenceBucket = Math.round(signal.confidence * 10);
     const momentumBucket = Math.round(market.momentum * 10);
-    return `${signal.type}|${priceBucket}|${sentimentBucket}|${confidenceBucket}|${momentumBucket}`;
+    return `${signal.type}|${market.conditionId}|${priceBucket}|${sentimentBucket}|${confidenceBucket}|${momentumBucket}`;
   }
 
   private isDuplicateFingerprint(fingerprint: string): boolean {
